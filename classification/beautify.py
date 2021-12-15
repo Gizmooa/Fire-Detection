@@ -9,8 +9,49 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
 class FireClassification:
-  """[summary]
   """
+  [summary]
+
+  Attributes
+  ----------
+  modelLocation : (str, optional 
+      The location where the model is saved as an absolute path. If it is 
+      unset, it will be saved in the current folder as saved_model/mymodel.
+          
+  testSetLocation : str, optional 
+      The absolute path to the folder, that holds the testset data. If it is 
+      not set, the location is in the current folder, in a folder called 
+      test_data.
+      
+  trainingSetLocation : str, optional 
+      [description]. The location of the training data set. If it is not set, 
+      the default location is in the current folder in a folder called 
+      training_data.
+      
+  batch_size : int, optional 
+      The size of the batches. Defaults to 32.
+      
+  img_height : int, optional 
+      Number of horizontal pixel. Defaults to 254.
+      
+  img_width : int, optional 
+      Number of vertical pixel. Defaults to 254.
+      
+  num_classes : int, optional 
+      The number of classes the nerual network should recognize. Defaults to 2 
+      for fire and no fire.
+  
+  Methods
+  -------
+  createDataset
+  
+  standardizeData
+  
+  createModel
+  
+  test_existing_classifier
+    """
+    
   trainedModel = False
   trainingSetLocation = None
   testSetLocation = None
@@ -22,37 +63,7 @@ class FireClassification:
 
   def __init__(self, modelLocation = None, testSetLocation = None, trainingSetLocation = None, batch_size = 32,
                img_height = 254, img_width = 254, num_classes = 2):
-    """[summary]
 
-    Parameters
-    ----------
-    modelLocation : (string, optional) 
-        The location where the model is saved as an absolute path. If it is 
-        unset, it will be saved in the current folder as saved_model/mymodel.
-            
-    testSetLocation : (string, optional) 
-        The absolute path to the folder, that holds the trainingdata. If it is 
-        not set, the location is in the current folder, in a folder called 
-        test_data.
-        
-    trainingSetLocation : (string, optional) 
-        [description]. The location of the training data set. If it is not set, 
-        the default location is in the current folder in a folder called 
-        training_data.
-        
-    batch_size : (int, optional) 
-        The size of the batches. Defaults to 32.
-        
-    img_height : (int, optional) 
-        Number of horizontal pixel. Defaults to 254.
-        
-    img_width : (int, optional) 
-        Number of vertical pixel. Defaults to 254.
-        
-    num_classes : (int, optional) 
-        The number of classes the nerual network should recognize. Defaults to 2 
-        for fire and no fire.
-    """
     
     self.modelLocation = modelLocation
     self.testSetLocation = testSetLocation
@@ -90,6 +101,7 @@ class FireClassification:
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
     self.standardizeData(train_ds, val_ds)
 
+
   def standardizeData(self, train_ds, val_ds):
     """[summary]
 
@@ -106,6 +118,37 @@ class FireClassification:
     # De 2 variabler bliver ikke brugt?
     image_batch, labels_batch = next(iter(normalized_ds))
     self.createModel(train_ds, val_ds)
+  
+  
+  def test_existing_classifier(self,model,testSetLocation=None,see_architecture=False):
+    """
+    Takes an existing fire classifier, and test it on the 
+    Parameters
+    ----------
+    testSetLocation : str, optional
+        Absolute path to the test datas location. It has to be set when the 
+        FireClassification object is created, or when the function is called for
+        the function to operate
+         
+    see_architecture : bool, optional
+        Prints the architecture of the model, if it is set to true. It is false by
+        default. 
+    """
+    
+    #if (testSetLocation == None):
+    #  testSetLocation = self.testSetLocation
+      
+
+    new_model = tf.keras.models.load_model(model)
+
+    new_model.summary()
+    #loss, acc = new_model.evaluate(self.testSetLocation, test_labels, verbose=2)
+    #print('Restored model, accuracy: {:5.2f}%'.format(100 * acc))
+    #print(new_model.predict(test_images).shape)
+    
+    
+    #model.predict(test_data)
+
 
   def createModel(self, train_ds, val_ds,epochs=1):
     """Creates the model from the training data set. It can then validate the
@@ -150,9 +193,19 @@ class FireClassification:
     self.trainedModel = True
     self.modelLocation = "saved_model/mymodel"
 
+  
+  
+
 if __name__ == "__main__":
-  location = ""
-  classifier = FireClassification(testSetLocation=location)
+  training_location = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data"
+  test_location     = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data"
+  model = "C:/Users/barth/Documents/studie/Fire-Detection/saved_model/mymodel"
+  classifier = FireClassification(trainingSetLocation=training_location)
+  
+  #classifier.createDataset()
+  classifier.test_existing_classifier(testSetLocation=test_location,model=model,
+                                      see_architecture=True)
+  
 #!mkdir -p saved_model
 #model.save("saved_model/mymodel")
 
