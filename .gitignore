@@ -2,3 +2,7 @@
 classification/test_data/
 
 classification/validation_data/
+
+classification/training_data/
+
+.vscode/
