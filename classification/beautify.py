@@ -1,3 +1,4 @@
+from imp import new_module
 import numpy as np
 import os
 import PIL
@@ -141,7 +142,12 @@ class FireClassification:
 
     new_model = tf.keras.models.load_model(model)
 
+    testing_data = tf.keras.utils.image_dataset_from_directory(testSetLocation,
+                              labels='inferred')
+
     new_model.summary()
+    new_model.predict(testing_data)
+    
     #loss, acc = new_model.evaluate(self.testSetLocation, test_labels, verbose=2)
     #print('Restored model, accuracy: {:5.2f}%'.format(100 * acc))
     #print(new_model.predict(test_images).shape)
@@ -197,9 +203,9 @@ class FireClassification:
   
 
 if __name__ == "__main__":
-  training_location = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data"
-  test_location     = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data"
-  model = "C:/Users/barth/Documents/studie/Fire-Detection/saved_model/mymodel"
+  training_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification"
+  test_location     = "C:/Users/barth/Documents/Studie/Fire-Detection/classification/test_data"
+  model = "C:/Users/barth/Documents/Studie/Fire-Detection/saved_model/mymodel"
   classifier = FireClassification(trainingSetLocation=training_location)
   
   #classifier.createDataset()
