@@ -13,8 +13,6 @@
 from dronekit import connect, Command, LocationGlobal
 from pymavlink import mavutil
 import time, sys, argparse, math
-import asyncio
-from mavsdk.camera import (CameraError, Mode)
 
 
 ################################################################################################
@@ -43,53 +41,6 @@ if args.connect:
 print("Connecting")
 vehicle = connect(connection_string, wait_ready=True)
 
-async def run():
-    drone = System()
-    await drone.connect(system_address="udp://:14540")
-
-    print("Waiting for drone to connect...")
-    async for state in drone.core.connection_state():
-        if state.is_connected:
-            print(f"Drone discovered!")
-            break
-
-    print_mode_task = asyncio.ensure_future(print_mode(drone))
-    print_status_task = asyncio.ensure_future(print_status(drone))
-    running_tasks = [print_mode_task, print_status_task]
-
-    print("Setting mode to 'PHOTO'")
-    try:
-        await drone.camera.set_mode(Mode.PHOTO)
-    except CameraError as error:
-        print(f"Setting mode failed with error code: {error._result.result}")
-
-    await asyncio.sleep(2)
-
-    print("Taking a photo")
-    try:
-        await drone.camera.take_photo()
-    except CameraError as error:
-        print(f"Couldn't take photo: {error._result.result}")
-
-    # Shut down the running coroutines (here 'print_mode()' and
-    # 'print_status()')
-    for task in running_tasks:
-        task.cancel()
-        try:
-            await task
-        except asyncio.CancelledError:
-            pass
-    await asyncio.get_event_loop().shutdown_asyncgens()
-
-
-async def print_mode(drone):
-    async for mode in drone.camera.mode():
-        print(f"Camera mode: {mode}")
-
-
-async def print_status(drone):
-    async for status in drone.camera.status():
-        print(status)
 
 
 def PX4setMode(mavMode):
@@ -147,9 +98,6 @@ while not home_position_set:
     print ("Waiting for home position...")
     time.sleep(1)
 
-# Display basic vehicle state
-
-
 # Change to AUTO mode
 PX4setMode(MAV_MODE_AUTO)
 time.sleep(1)
@@ -164,9 +112,6 @@ home = vehicle.location.global_relative_frame
 wp = get_location_offset_meters(home, 0, 0, 75); #Height depends on height of trees in the area
 cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
 cmds.add(cmd)
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(run())
 
 for i in range (5):
 	# move 50 meters north
