@@ -9,6 +9,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
+
 class FireClassification:
   """
   [summary]
@@ -42,6 +43,10 @@ class FireClassification:
       The number of classes the nerual network should recognize. Defaults to 2 
       for fire and no fire.
   
+  seed : int, optional 
+      A seed for the random generator used, to shuffle the given data and trans-
+      formation. Default value is 42. 
+  
   Methods
   -------
   createDataset
@@ -50,10 +55,9 @@ class FireClassification:
   
   createModel
   
-  test_existing_classifier
+  predict_folder
     """
     
-  trainedModel = False
   trainingSetLocation = None
   testSetLocation = None
   modelLocation = None
@@ -62,10 +66,10 @@ class FireClassification:
   img_width = None
   num_classes = None
 
-  def __init__(self, modelLocation = None, testSetLocation = None, trainingSetLocation = None, batch_size = 32,
-               img_height = 254, img_width = 254, num_classes = 2):
+  def __init__(self, modelLocation = None, testSetLocation = None, 
+               trainingSetLocation = None, batch_size = 32,
+               img_height = 254, img_width = 254, num_classes = 2, seed=42):
 
-    
     self.modelLocation = modelLocation
     self.testSetLocation = testSetLocation
     self.trainingSetLocation = trainingSetLocation
@@ -73,19 +77,19 @@ class FireClassification:
     self.img_height = img_height
     self.img_width = img_width
     self.num_classes = num_classes
+    self.seed = seed
 
-    if (self.modelLocation != None): trainedModel = True
 
-#TODO: Make seed a variable that the user can set. 
   def createDataset(self):
     """Creates the data from the given trainingset location, creates a valida-
-    tion split at 0.2. The given validation 
+    tion split at 0.2. The seed given to the FireClassification object is used
+    here for shuffeling and transformations. 
     """
     train_ds = tf.keras.utils.image_dataset_from_directory(
       self.trainingSetLocation,
       validation_split=0.2,
       subset="training",
-      seed=123,
+      seed=self.seed,
       image_size=(self.img_height, self.img_width),
       batch_size=self.batch_size)
 
@@ -93,7 +97,7 @@ class FireClassification:
       self.trainingSetLocation, #Should this not be testsetlocation. 
       validation_split=0.2,
       subset="validation",
-      seed=123,
+      seed=self.seed,
       image_size=(self.img_height, self.img_width),
       batch_size=self.batch_size)
     AUTOTUNE = tf.data.AUTOTUNE
@@ -121,40 +125,81 @@ class FireClassification:
     self.createModel(train_ds, val_ds)
   
   
-  def test_existing_classifier(self,model,testSetLocation=None,see_architecture=False):
-    """
-    Takes an existing fire classifier, and test it on the 
+  #TODO: Fix so that it works. 
+  def predict_image(self,model,image,show_image=False):
+    """Takes an image and a model, and classifies that picture with the model.
+     
     Parameters
     ----------
+    model : str
+        Absolute path to the trained model. 
+        
+    image : str
+        Absolute path to the picture. 
+    
+    show_image : bool
+        If set to true, the image, will be shown in a window. 
+    
+    Returns
+    -------
+        None
+    """
+    
+    img = tf.keras.utils.load_img(image)
+ 
+    y = img.img_to_array(img)
+    
+    x = np.expand_dims(y,axis=0)
+    
+    model = tf.keras.models.load_model(model)
+
+    val = model.predict(x)
+    print(val)
+    
+    
+  
+  def predict_folder(self,model,testSetLocation=None,see_architecture=False):
+    """Takes an existing fire classifier, and test it on the given test data.  
+  
+    Parameters
+    ----------
+    model : str
+        Absolute path to the model location.
+     
     testSetLocation : str, optional
         Absolute path to the test datas location. It has to be set when the 
         FireClassification object is created, or when the function is called for
-        the function to operate
+        the function to operate.
          
     see_architecture : bool, optional
-        Prints the architecture of the model, if it is set to true. It is false by
-        default. 
+        Prints the architecture of the model, if it is set to true. It is false 
+        by default. 
+    
+    Returns
+    -------
+    predictions : numpy array
+        A numpy array where each entry is how sure the classifier is, that the
+        given picture fire or nonfire. If the entry is (0-0.5], the class-
+        ifier predicts that there is a fire. If its (0,5-1], it predicts there
+        is no fire. 
     """
     
-    #if (testSetLocation == None):
-    #  testSetLocation = self.testSetLocation
+    
+    if (testSetLocation == None):
+      testSetLocation = self.testSetLocation
       
-
-    new_model = tf.keras.models.load_model(model)
+      
+    model = tf.keras.models.load_model(model)
 
     testing_data = tf.keras.utils.image_dataset_from_directory(testSetLocation,
+                              image_size=(self.img_height,self.img_width),
                               labels='inferred')
 
-    new_model.summary()
-    new_model.predict(testing_data)
+    if(see_architecture):
+      model.summary()
     
-    #loss, acc = new_model.evaluate(self.testSetLocation, test_labels, verbose=2)
-    #print('Restored model, accuracy: {:5.2f}%'.format(100 * acc))
-    #print(new_model.predict(test_images).shape)
-    
-    
-    #model.predict(test_data)
-
+    predictions = new_model.predict(testing_data)
+    return predictions
 
   def createModel(self, train_ds, val_ds,epochs=1):
     """Creates the model from the training data set. It can then validate the
@@ -180,12 +225,12 @@ class FireClassification:
       layers.Conv2D(64, 3, padding='same', activation='relu'),
       layers.MaxPooling2D(),
       layers.Flatten(),
-      layers.Dense(128, activation='relu'),
-      layers.Dense(self.num_classes)
+      layers.Dense(128, activation='sigmoid'),
+      layers.Dense(1,activation='sigmoid')
     ])
 
     model.compile(optimizer='adam',
-                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  loss='binary_crossentropy',
                   metrics=['accuracy'])
 
     
@@ -196,21 +241,19 @@ class FireClassification:
     )
     
     model.save("saved_model/mymodel")
-    self.trainedModel = True
     self.modelLocation = "saved_model/mymodel"
-
-  
   
 
 if __name__ == "__main__":
   training_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification"
   test_location     = "C:/Users/barth/Documents/Studie/Fire-Detection/classification/test_data"
+  test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
   model = "C:/Users/barth/Documents/Studie/Fire-Detection/saved_model/mymodel"
   classifier = FireClassification(trainingSetLocation=training_location)
   
-  #classifier.createDataset()
-  classifier.test_existing_classifier(testSetLocation=test_location,model=model,
-                                      see_architecture=True)
+#  classifier.createDataset()
+#  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
+#  test2 = classifier.predict_image(model,test_image)
   
 #!mkdir -p saved_model
 #model.save("saved_model/mymodel")
