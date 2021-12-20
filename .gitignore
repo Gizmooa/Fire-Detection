@@ -7,9 +7,5 @@ classification/training_data/
 
 .vscode/
 
-saved_model/
-
 
 classification/Training/
-
-.vscode/
