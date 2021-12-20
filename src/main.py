@@ -33,6 +33,7 @@ if __name__ == '__main__':
         # Todo - Use classifier on the frame above
         # If the frame/image gets classified as a fire image, ping the authorities.
 
+        frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
