@@ -15,13 +15,13 @@ if __name__ == '__main__':
     # Load in the classifier, video stream, and mission classes.
     classifier = FireClassification(trainingSetLocation=training_location)
     video = Video()
-    mission = DroneMission()
+    """mission = DroneMission()
 
     # Start the drone mission
     mission.start_mission()
 
     # Wait for the drone to have started the mission
-    time.sleep(10)
+    time.sleep(10)"""
 
     while True:
         # Wait for the next frame
