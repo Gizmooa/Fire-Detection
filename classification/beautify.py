@@ -3,8 +3,12 @@ import numpy as np
 import os
 import PIL
 import pathlib
+from six import python_2_unicode_compatible
 import tensorflow as tf
+import cv2 as cv
 
+from torchvision import transforms
+from PIL import Image
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -145,17 +149,27 @@ class FireClassification:
         None
     """
     
-    img = tf.keras.utils.load_img(image)
- 
-    y = img.img_to_array(img)
+    img = Image.open(image)
+    print(type(img))
+   # y = img.img_to_array(img)
     
-    x = np.expand_dims(y,axis=0)
-    
-    model = tf.keras.models.load_model(model)
+    #x = np.expand_dims(y,axis=0)
 
-    val = model.predict(x)
+    pil_to_tensor = transforms.ToTensor()(img).unsqueeze_(0)
+    numpy_frame = np.asfarray(img)
+    numpy_frame = cv.normalize(numpy_frame.astype('float'), None, -0.5, .5, cv.NORM_MINMAX)
+    numpy_final = np.expand_dims(numpy_frame, axis=0)
+    
+    print("numpy_frame shape: ",numpy_frame.shape)
+    print(type(pil_to_tensor))
+    print("pil_to_tensor shape: ",pil_to_tensor.shape)
+    
+    np_image = pil_to_tensor.cpu().data.numpy()
+    model = tf.keras.models.load_model(model)
+    val = model.predict(numpy_final)
     print(val)
     
+    #expected shape=(None, 254, 254, 3)
     
   
   def predict_folder(self,model,testSetLocation=None,see_architecture=False):
@@ -198,7 +212,7 @@ class FireClassification:
     if(see_architecture):
       model.summary()
     
-    predictions = new_model.predict(testing_data)
+    predictions = model.predict(testing_data)
     return predictions
 
   def createModel(self, train_ds, val_ds,epochs=1):
@@ -245,15 +259,17 @@ class FireClassification:
   
 
 if __name__ == "__main__":
-  training_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification"
+  training_location = "C:/Users/barth/Documents/studie/Fire-Detection/classification/training_data"
   test_location     = "C:/Users/barth/Documents/Studie/Fire-Detection/classification/test_data"
-  test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
+  test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/No_Fire/resized_test_nofire_frame50.jpg"
   model = "C:/Users/barth/Documents/Studie/Fire-Detection/saved_model/mymodel"
   classifier = FireClassification(trainingSetLocation=training_location)
   
 #  classifier.createDataset()
-#  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
+  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
 #  test2 = classifier.predict_image(model,test_image)
+  print(max(test1))
+  
   
 #!mkdir -p saved_model
 #model.save("saved_model/mymodel")
