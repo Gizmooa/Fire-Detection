@@ -72,7 +72,22 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
     return LocationGlobal(newlat, newlon,original_location.alt+alt)
 
 
+
+
+
+################################################################################################
+# Listeners
+################################################################################################
+
 home_position_set = False
+
+#Create a message listener for home position fix
+@vehicle.on_message('HOME_POSITION')
+def listener(self, name, home_position):
+    global home_position_set
+    home_position_set = True
+
+
 
 ################################################################################################
 # Start mission example
@@ -82,7 +97,6 @@ home_position_set = False
 while not home_position_set:
     print ("Waiting for home position...")
     time.sleep(1)
-
 
 # Change to AUTO mode
 PX4setMode(MAV_MODE_AUTO)
