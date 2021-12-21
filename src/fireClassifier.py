@@ -8,6 +8,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
+import os
 
 
 class FireClassification:
@@ -102,8 +103,8 @@ class FireClassification:
       batch_size=self.batch_size)
     AUTOTUNE = tf.data.AUTOTUNE
 
-    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-    val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    #train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    #val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
     self.standardizeData(train_ds, val_ds)
 
 
@@ -198,10 +199,11 @@ class FireClassification:
     if(see_architecture):
       model.summary()
     
-    predictions = new_model.predict(testing_data)
+    #predictions = new_model.predict(testing_data)
+    predictions = model.predict(testing_data)
     return predictions
 
-  def createModel(self, train_ds, val_ds,epochs=1):
+  def createModel(self, train_ds, val_ds,epochs=10):
     """Creates the model from the training data set. It can then validate the
     the models performance with the given validation data set.
 
@@ -224,10 +226,14 @@ class FireClassification:
       layers.MaxPooling2D(),
       layers.Conv2D(64, 3, padding='same', activation='relu'),
       layers.MaxPooling2D(),
+      layers.Dropout(0.2),
       layers.Flatten(),
-      layers.Dense(128, activation='sigmoid'),
+      layers.Dense(128, activation='relu'),
       layers.Dense(1,activation='sigmoid')
     ])
+
+    callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
+
 
     model.compile(optimizer='adam',
                   loss='binary_crossentropy',
@@ -237,7 +243,8 @@ class FireClassification:
     history = model.fit(
       train_ds,
       validation_data=val_ds,
-      epochs=epochs
+      epochs=epochs,
+      callbacks=[callback]
     )
     
     model.save("saved_model/mymodel")
@@ -245,16 +252,31 @@ class FireClassification:
   
 
 if __name__ == "__main__":
-  training_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification"
-  test_location     = "C:/Users/barth/Documents/Studie/Fire-Detection/classification/test_data"
-  test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
-  model = "C:/Users/barth/Documents/Studie/Fire-Detection/saved_model/mymodel"
+  training_location = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training"
+  #test_location     = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire"
+
+  #test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
+  model = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/src/saved_model/mymodel"
   classifier = FireClassification(trainingSetLocation=training_location)
-  
-#  classifier.createDataset()
+  classifier.createDataset()
+  """prediction = classifier.predict_folder(model, testSetLocation=test_location)
+  for i in prediction:
+    print(i)"""
+  """model = tf.keras.models.load_model(model)
+  for image in os.listdir("/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training/No_Fire"):
+    #prediction = classifier.predict_image(model, "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire/" + image)
+    img = tf.keras.utils.load_img("/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training/No_Fire/" + image)
+    img_array = tf.keras.utils.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)
+    val = model.predict(img_array)
+    print(val)"""
+  #classifier.createDataset()
+
 #  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
 #  test2 = classifier.predict_image(model,test_image)
   
 #!mkdir -p saved_model
 #model.save("saved_model/mymodel")
+
+
 
