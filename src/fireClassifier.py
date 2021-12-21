@@ -4,8 +4,7 @@ import os
 import PIL
 import pathlib
 import tensorflow as tf
-import winsound
-import time
+
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -256,8 +255,9 @@ class FireClassification:
   
 
 if __name__ == "__main__":
+  #returnerer 1 for no fire, og 0 for fire
   training_location = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training"
-  #test_location     = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire"
+  test_location     = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire/"
 
   #test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
   model = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/src/saved_model/mymodel"
@@ -267,19 +267,15 @@ if __name__ == "__main__":
   for i in prediction:
     print(i)"""
   """model = tf.keras.models.load_model(model)
-  for image in os.listdir("/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training/No_Fire"):
+  for image in os.listdir(test_location):
     #prediction = classifier.predict_image(model, "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire/" + image)
-    img = tf.keras.utils.load_img("/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training/No_Fire/" + image)
+    img = tf.keras.utils.load_img(test_location + image)
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
     val = model.predict(img_array)
     print(val)"""
   #classifier.createDataset()
-  frequency = 2500
-  duration = 1000
-  for i in range (10):
-    winsound.Beep(frequency, duration)
-    time.sleep(2)
+
 
 
 #  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
