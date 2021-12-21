@@ -1,5 +1,5 @@
 from cameraCapture import Video
-from droneMission import DroneMission
+import droneMission
 from fireClassifier import FireClassification
 import cv2
 import time
@@ -31,6 +31,11 @@ if __name__ == '__main__':
             continue
 
         frame = video.frame()
+
+        currentHome = droneMission.home
+        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 75)
+
+        print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
 
         # Todo - Use classifier on the frame above
         # If the frame/image gets classified as a fire image, ping the authorities.
