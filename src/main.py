@@ -7,21 +7,21 @@ import time
 if __name__ == '__main__':
     # Create the video object
     # Add port= if is necessary to use a different one
-    training_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification"
-    test_location = "C:/Users/barth/Documents/Studie/Fire-Detection/classification/test_data"
-    test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
-    model = "C:/Users/barth/Documents/Studie/Fire-Detection/saved_model/mymodel"
+    training_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Training"
+    test_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Test"
+    #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
+    model = "C:/Users/Sissel/PycharmProjects/Fire-Detection/saved_model/mymodel"
 
     # Load in the classifier, video stream, and mission classes.
-    classifier = FireClassification(trainingSetLocation=training_location)
+    classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
     video = Video()
-    mission = DroneMission()
+    #mission = DroneMission()
 
     # Start the drone mission
-    mission.start_mission()
+    #mission.start_mission()
 
     # Wait for the drone to have started the mission
-    time.sleep(10)
+    #time.sleep(10)
 
     while True:
         # Wait for the next frame
