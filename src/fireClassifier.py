@@ -4,6 +4,8 @@ import os
 import PIL
 import pathlib
 import tensorflow as tf
+import winsound
+import time
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -91,6 +93,7 @@ class FireClassification:
       validation_split=0.2,
       subset="training",
       seed=self.seed,
+      shuffle=True,
       image_size=(self.img_height, self.img_width),
       batch_size=self.batch_size)
 
@@ -99,6 +102,7 @@ class FireClassification:
       validation_split=0.2,
       subset="validation",
       seed=self.seed,
+      shuffle=True,
       image_size=(self.img_height, self.img_width),
       batch_size=self.batch_size)
     AUTOTUNE = tf.data.AUTOTUNE
@@ -271,6 +275,12 @@ if __name__ == "__main__":
     val = model.predict(img_array)
     print(val)"""
   #classifier.createDataset()
+  frequency = 2500
+  duration = 1000
+  for i in range (10):
+    winsound.Beep(frequency, duration)
+    time.sleep(2)
+
 
 #  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
 #  test2 = classifier.predict_image(model,test_image)
