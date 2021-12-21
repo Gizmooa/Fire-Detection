@@ -33,7 +33,7 @@ if __name__ == '__main__':
         frame = video.frame()
 
         currentHome = droneMission.home
-        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 75)
+        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
 
         print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
 
