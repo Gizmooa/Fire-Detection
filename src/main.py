@@ -16,12 +16,14 @@ if __name__ == '__main__':
     classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
     video = Video()
     #mission = DroneMission()
+    """mission = DroneMission()
 
     # Start the drone mission
     #mission.start_mission()
 
     # Wait for the drone to have started the mission
     #time.sleep(10)
+    time.sleep(10)"""
 
     while True:
         # Wait for the next frame

@@ -5,8 +5,7 @@ import gi
 import numpy as np
 
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst #gst_camera_plugin er pluginnet til kameraet på typhoon
-
+from gi.repository import Gst
 
 class Video():
     """BlueRov video capture class constructor
