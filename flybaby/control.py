@@ -29,9 +29,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--connect", help="connection string")
 args = parser.parse_args()
 
+# We may be able to use commented out code, to bypass some commandline calls. 
 if args.connect:
     connection_string = args.connect
-
+#	import dronekit_sitl
+#	sitl = dronekit_sitl.start_default()
+#	connection_string = sitl_connection_string()
 
 ################################################################################################
 # Init
