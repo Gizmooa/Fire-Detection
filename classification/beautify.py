@@ -129,7 +129,7 @@ class FireClassification:
     self.createModel(train_ds, val_ds)
   
   
-  #TODO: Fix so that it works. 
+  #TODO: return a float.  
   def predict_image(self,model,image,show_image=False):
     """Takes an image and a model, and classifies that picture with the model.
      
