@@ -1,71 +1,190 @@
-from cameraCapture import Video
-#import droneMission
-from fireClassifier import FireClassification
-import cv2
-import droneMission
-"""from droneMission import start_mission
-from droneMission import vehicle
-from droneMission import home
-from droneMission import get_location_offset_meters"""
-import time
-import threading
+#!/usr/bin/env python3
+################################################################################################
+# @File DroneKitPX4.py
+# Example usage of DroneKit with PX4
+#
+# @author Sander Smeets <sander@droneslab.com>
+#
+# Code partly based on DroneKit (c) Copyright 2015-2016, 3D Robotics.
+################################################################################################
+# Import DroneKit-Python
+from dronekit import connect, Command, LocationGlobal
+from pymavlink import mavutil
+import time, sys, argparse, math
+
+vehicle = None
+home = None
+
+################################################################################################
+# Settings
+################################################################################################
+
+connection_string       = '127.0.0.1:14540'
+MAV_MODE_AUTO   = 4
+# https://github.com/PX4/PX4-Autopilot/blob/master/Tools/mavlink_px4.py
 
 
-def classify_fire():
-    print("i func")
-    while True:
-        # Wait for the next frame
-        if not video.frame_available():
-            continue
-        print("billede")
-        frame = video.frame()
-        print(f'main home = {droneMission.home}')
-        currentHome = droneMission.home
-        if currentHome is None:
-            continue
-        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
-        print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
+# Parse connection argument
+parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--connect", help="connection string")
+args = parser.parse_args()
 
-        # Todo - Use classifier on the frame above
-        # If the frame/image gets classified as a fire image, ping the authorities.
-
-        frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
-        cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+if args.connect:
+	connection_string = args.connect
 
 
-if __name__ == '__main__':
-    # Create the video object
-    # Add port= if is necessary to use a different one
-    training_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Training"
-    test_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Test"
-    #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
-    model = "C:/Users/Sissel/PycharmProjects/Fire-Detection/saved_model/mymodel"
-    # Load in the classifier, video stream, and mission classes.
-    classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
-    video = Video()
-    #mission = DroneMission()
-    """mission = DroneMission()
-    # Start the drone mission
-    #mission.start_mission()
-    # Wait for the drone to have started the mission
-    #time.sleep(10)
-    time.sleep(10)"""
+################################################################################################
+# Init
+################################################################################################
+
+# Connect to the Vehicle
+print("Connecting")
+vehicle = connect(connection_string, wait_ready=True)
+time.sleep(10)
+print("hej")
+
+################################################################################################
+# Listeners
+################################################################################################
+
+home_position_set = False
 
 
-    # Start the drone mission on seperate thread
-    #droneThread = threading.Thread(target=start_mission())
-    #x = start_mission()
-    #y = classify_fire()
-    #time.sleep(60)
-    print("inden drone tråd")
-    droneThread = threading.Thread(target=droneMission.start_mission, name="Bib")
-    print("lavet drone tråd")
-    fireThread = threading.Thread(target=classify_fire, name="Bob")
-    print("starter drone")
-    droneThread.start()
-    fireThread.start()
-    print("før sleep")
-    time.sleep(10)
-    print("efter sleep")
+# Create a message listener for home position fix
+@vehicle.on_message('HOME_POSITION')
+def listener(self, name, home_position):
+	global home_position_set
+	home_position_set = True
+
+def PX4setMode(mavMode):
+    global vehicle
+    vehicle._master.mav.command_long_send(vehicle._master.target_system, vehicle._master.target_component,
+                                               mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0,
+                                               mavMode,
+                                               0, 0, 0, 0, 0, 0)
+def get_location_offset_meters(original_location, dNorth, dEast, alt):
+    """
+    Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
+    specified `original_location`. The returned Location adds the entered `alt` value to the altitude of the `original_location`.
+    The function is useful when you want to move the vehicle around specifying locations relative to
+    the current vehicle position.
+    The algorithm is relatively accurate over small distances (10m within 1km) except close to the poles.
+    For more information see:
+    http://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+    """
+    earth_radius=6378137.0 #Radius of "spherical" earth
+    #Coordinate offsets in radians
+    dLat = dNorth/earth_radius
+    dLon = dEast/(earth_radius*math.cos(math.pi*original_location.lat/180))
+    #New position in decimal degrees
+    newlat = original_location.lat + (dLat * 180/math.pi)
+    newlon = original_location.lon + (dLon * 180/math.pi)
+    return LocationGlobal(newlat, newlon,original_location.alt+alt)
+
+def start_mission():
+	global vehicle
+	################################################################################################
+	# Settings
+	################################################################################################
+
+	connection_string       = '127.0.0.1:14540'
+	MAV_MODE_AUTO   = 4
+	# https://github.com/PX4/PX4-Autopilot/blob/master/Tools/mavlink_px4.py
+
+
+	# Parse connection argument
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-c", "--connect", help="connection string")
+	args = parser.parse_args()
+
+	if args.connect:
+		connection_string = args.connect
+
+	global home
+	global home_position_set
+
+	################################################################################################
+	# Init
+	################################################################################################
+
+	# Connect to the Vehicle
+	print("Connecting")
+	vehicle = connect(connection_string, wait_ready=True)
+
+	################################################################################################
+	# Listeners
+	################################################################################################
+
+	home_position_set = False
+
+	#Create a message listener for home position fix
+	@vehicle.on_message('HOME_POSITION')
+	def listener(self, name, home_position):
+		global home_position_set
+		home_position_set = True
+
+
+
+	################################################################################################
+	# Start mission example
+	################################################################################################
+
+	# wait for a home position lock
+	while not home_position_set:
+		print ("Waiting for home position...")
+		time.sleep(1)
+
+		continue
+		#print ("Waiting for home position...")
+		#time.sleep(1)
+	print("home pos set")
+	# Change to AUTO mode
+	PX4setMode(MAV_MODE_AUTO)
+	time.sleep(1)
+	#time.sleep(1)
+
+	# Load commands
+	cmds = vehicle.commands
+	cmds.clear()
+
+	print("home loc not set")
+	home = vehicle.location.global_relative_frame
+	print(f'home fra drone = {home}')
+
+	# takeoff to 75 meters
+	wp = get_location_offset_meters(home, 0, 0, 75); #Height depends on height of trees in the area
+@@ -174,7 +186,7 @@ def listener(self, name, home_position):
+
+	# Upload mission
+	cmds.upload()
+	time.sleep(2)
+	#time.sleep(2)
+
+	# Arm vehicle
+	vehicle.armed = True
+	# monitor mission execution
+	nextwaypoint = vehicle.commands.next
+	while nextwaypoint < len(vehicle.commands):
+		if vehicle.commands.next > nextwaypoint:
+			display_seq = vehicle.commands.next+1
+			print("Moving to waypoint %s" % display_seq)
+			nextwaypoint = vehicle.commands.next
+		time.sleep(1)
+		#time.sleep(1)
+
+	# wait for the vehicle to land
+	while vehicle.commands.next > 0:
+		time.sleep(1)
+		pass
+		#time.sleep(1)
+
+
+	# Disarm vehicle
+	vehicle.armed = False
+	time.sleep(1)
+	#time.sleep(1)
+
+	# Close vehicle object before exiting script
+	vehicle.close()
+	time.sleep(1) 
+	#time.sleep(1)
