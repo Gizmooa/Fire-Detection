@@ -92,6 +92,7 @@ def start_mission():
 	global vehicle
 	global home
 	global home_position_set
+	print("I am awesome")
 
 
 

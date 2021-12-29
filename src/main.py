@@ -59,6 +59,7 @@ if __name__ == '__main__':
     #x = start_mission()
     #y = classify_fire()
     #time.sleep(60)
+    print("I am awesome")
     print("inden drone tråd")
     droneThread = threading.Thread(target=droneMission.start_mission, name="Bib")
     print("lavet drone tråd")
