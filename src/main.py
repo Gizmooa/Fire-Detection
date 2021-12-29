@@ -1,12 +1,7 @@
 from cameraCapture import Video
-#import droneMission
 from fireClassifier import FireClassification
 import cv2
 import droneMission
-"""from droneMission import start_mission
-from droneMission import vehicle
-from droneMission import home
-from droneMission import get_location_offset_meters"""
 import time
 import threading
 
@@ -20,24 +15,21 @@ def classify_fire():
         # Wait for the next frame
         if not video.frame_available():
             continue
-        print("billede")
         frame = video.frame()
-        print(f'main home = {droneMission.home}')
         currentHome = droneMission.home
         if currentHome is None:
             continue
         wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
         print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
 
-        # Todo - Use classifier on the frame above
-        # If the frame/image gets classified as a fire image, ping the authorities.
-
         frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
         predict_value = classifier.predict_image(frame)
 
         if threshold > predict_value:
-            print("FIRE!")
-        print(f"threshold = {predict_value}")
+            # TODO - Ping authorities as we've detected fire!
+            print(f"[-] We've detected fire with the probability of {(1-predict_value)*100} percent")
+        else:
+            print(f"[+] No fire detected!")
 
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -45,8 +37,14 @@ def classify_fire():
 
 
 if __name__ == '__main__':
-    # Create the video object
-    # Add port= if is necessary to use a different one
+    abs_path = str(pathlib.Path(__file__).parent.resolve())
+    # These generic paths requires the model, training and test folder to be placed in
+    # the absolute path of the project(outside of src) and in the folder /Training, /Test/ and
+    # saved_model/mymodel
+    generic_model_path = abs_path.replace("\\src", "\\saved_model\\mymodel")
+    generic_test_location = abs_path.replace("\\src", "\\Training")
+    generic_training_location = abs_path.replace("\\src", "\\Test")
+
     training_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Training"
     test_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Test"
     #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
@@ -54,28 +52,10 @@ if __name__ == '__main__':
     # Load in the classifier, video stream, and mission classes.
     classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
     video = Video()
-    #mission = DroneMission()
-    """mission = DroneMission()
-    # Start the drone mission
-    #mission.start_mission()
-    # Wait for the drone to have started the mission
-    #time.sleep(10)
-    time.sleep(10)"""
 
-
-    # Start the drone mission on seperate thread
-    #droneThread = threading.Thread(target=start_mission())
-    #x = start_mission()
-    #y = classify_fire()
-    #time.sleep(60)
-    print("I am awesome")
-    print("inden drone tråd")
+    # Create two threads, one running the drone mission and another one
+    # performing classification on images from the typhoon h480 drone.
     droneThread = threading.Thread(target=droneMission.start_mission, name="Bib")
-    print("lavet drone tråd")
     fireThread = threading.Thread(target=classify_fire, name="Bob")
-    print("starter drone")
     droneThread.start()
     fireThread.start()
-    print("før sleep")
-    time.sleep(10)
-    print("efter sleep")
