@@ -4,10 +4,30 @@ from fireClassifier import FireClassification
 import cv2
 from droneMission import start_mission
 from droneMission import vehicle
-from droneMission import home
 from droneMission import get_location_offset_meters
 import time
 import threading
+
+home = None
+vehicle = None
+
+def set_home(newHome):
+    global home
+    home = newHome
+
+def get_home():
+    global home
+    return home
+
+
+def set_vehicle(newVehicle):
+    global vehicle
+    vehicle = newVehicle
+
+
+def get_vehicle():
+    global vehicle
+    return vehicle
 
 
 def classify_fire():
@@ -19,7 +39,7 @@ def classify_fire():
         print("billede")
         frame = video.frame()
         print(f'main home = {home}')
-        currentHome = home
+        currentHome = get_home()
         if currentHome is None:
             continue
         wp = get_location_offset_meters(currentHome, 0, 0, 0)

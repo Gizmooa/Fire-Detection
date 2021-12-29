@@ -12,10 +12,9 @@
 
 from dronekit import connect, Command, LocationGlobal
 from pymavlink import mavutil
+from main import set_home
+from main import set_vehicle
 import time, sys, argparse, math
-
-vehicle = None
-home = None
 
 ################################################################################################
 # Settings
@@ -42,6 +41,7 @@ if args.connect:
 # Connect to the Vehicle
 print("Connecting")
 vehicle = connect(connection_string, wait_ready=True)
+set_vehicle(vehicle)
 time.sleep(10)
 print("hej")
 
@@ -89,8 +89,6 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
 
 
 def start_mission():
-	global vehicle
-	global home
 	global home_position_set
 
 
@@ -117,6 +115,7 @@ def start_mission():
 
 	print("home loc not set")
 	home = vehicle.location.global_relative_frame
+	set_home(home)
 	print(f'home fra drone = {home}')
 
 	# takeoff to 75 meters
