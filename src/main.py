@@ -4,7 +4,7 @@ import cv2
 import droneMission
 import time
 import threading
-
+import pathlib
 
 def classify_fire():
     model = "/home/rasmus/Documents/Fire-Detection/src/saved_model/mymodel/"
