@@ -2,32 +2,13 @@ from cameraCapture import Video
 #import droneMission
 from fireClassifier import FireClassification
 import cv2
-from droneMission import start_mission
+import droneMission
+"""from droneMission import start_mission
 from droneMission import vehicle
-from droneMission import get_location_offset_meters
+from droneMission import home
+from droneMission import get_location_offset_meters"""
 import time
 import threading
-
-home = None
-vehicle = None
-
-def set_home(newHome):
-    global home
-    home = newHome
-
-def get_home():
-    global home
-    return home
-
-
-def set_vehicle(newVehicle):
-    global vehicle
-    vehicle = newVehicle
-
-
-def get_vehicle():
-    global vehicle
-    return vehicle
 
 
 def classify_fire():
@@ -38,11 +19,11 @@ def classify_fire():
             continue
         print("billede")
         frame = video.frame()
-        print(f'main home = {home}')
-        currentHome = get_home()
+        print(f'main home = {droneMission.home}')
+        currentHome = droneMission.home
         if currentHome is None:
             continue
-        wp = get_location_offset_meters(currentHome, 0, 0, 0)
+        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
         print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
 
         # Todo - Use classifier on the frame above
@@ -61,35 +42,30 @@ if __name__ == '__main__':
     test_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Test"
     #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
     model = "C:/Users/Sissel/PycharmProjects/Fire-Detection/saved_model/mymodel"
-
     # Load in the classifier, video stream, and mission classes.
     classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
     video = Video()
     #mission = DroneMission()
     """mission = DroneMission()
-
     # Start the drone mission
     #mission.start_mission()
-
     # Wait for the drone to have started the mission
     #time.sleep(10)
     time.sleep(10)"""
 
 
     # Start the drone mission on seperate thread
+    #droneThread = threading.Thread(target=start_mission())
     #x = start_mission()
     #y = classify_fire()
     #time.sleep(60)
     print("inden drone tråd")
-    droneThread = threading.Thread(target=start_mission, name="Bib")
+    droneThread = threading.Thread(target=droneMission.start_mission, name="Bib")
     print("lavet drone tråd")
     fireThread = threading.Thread(target=classify_fire, name="Bob")
     print("starter drone")
     droneThread.start()
+    fireThread.start()
     print("før sleep")
     time.sleep(10)
     print("efter sleep")
-    fireThread.start()
-
-
-
