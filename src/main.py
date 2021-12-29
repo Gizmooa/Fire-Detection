@@ -1,8 +1,11 @@
 from cameraCapture import Video
-import droneMission
+#import droneMission
 from fireClassifier import FireClassification
 import cv2
+from droneMission import start_mission
+from droneMission import vehicle
 import time
+import threading
 
 if __name__ == '__main__':
     # Create the video object
@@ -24,6 +27,12 @@ if __name__ == '__main__':
     # Wait for the drone to have started the mission
     #time.sleep(10)
     time.sleep(10)"""
+
+
+    # Start the drone mission on seperate thread
+    droneThread = threading.Thread(target=start_mission())
+    droneThread.start()
+
 
     while True:
         # Wait for the next frame
