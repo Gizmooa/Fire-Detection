@@ -4,8 +4,35 @@ from fireClassifier import FireClassification
 import cv2
 from droneMission import start_mission
 from droneMission import vehicle
+from droneMission import home
+from droneMission import get_location_offset_meters
 import time
 import threading
+
+
+def classify_fire():
+    print("i func")
+    while True:
+        # Wait for the next frame
+        if not video.frame_available():
+            continue
+        print("billede")
+        frame = video.frame()
+        print(f'main home = {home}')
+        currentHome = home
+        if currentHome is None:
+            continue
+        wp = get_location_offset_meters(currentHome, 0, 0, 0)
+        print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
+
+        # Todo - Use classifier on the frame above
+        # If the frame/image gets classified as a fire image, ping the authorities.
+
+        frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
 
 if __name__ == '__main__':
     # Create the video object
@@ -30,26 +57,19 @@ if __name__ == '__main__':
 
 
     # Start the drone mission on seperate thread
-    droneThread = threading.Thread(target=start_mission())
+    #x = start_mission()
+    #y = classify_fire()
+    #time.sleep(60)
+    print("inden drone tråd")
+    droneThread = threading.Thread(target=start_mission, name="Bib")
+    print("lavet drone tråd")
+    fireThread = threading.Thread(target=classify_fire, name="Bob")
+    print("starter drone")
     droneThread.start()
+    print("før sleep")
+    time.sleep(10)
+    print("efter sleep")
+    fireThread.start()
 
 
-    while True:
-        # Wait for the next frame
-        if not video.frame_available():
-            continue
 
-        frame = video.frame()
-
-        currentHome = droneMission.home
-        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
-
-        print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
-
-        # Todo - Use classifier on the frame above
-        # If the frame/image gets classified as a fire image, ping the authorities.
-
-        frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
-        cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
