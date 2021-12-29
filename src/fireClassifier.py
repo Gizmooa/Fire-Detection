@@ -129,15 +129,11 @@ class FireClassification:
     self.createModel(train_ds, val_ds)
   
   
-  #TODO: Fix, so that it returns a float 
-  def predict_image(self,model,image,show_image=False):
-    """Takes an image and a model, and classifies that picture with the model.
+  def predict_image(self,image,show_image=False):
+    """Takes an image and classifies that picture with the model.
      
     Parameters
     ----------
-    model : str
-        Absolute path to the trained model. 
-        
     image : str
         Absolute path to the picture. 
     
@@ -149,17 +145,15 @@ class FireClassification:
         None
     """
     
-    img = tf.keras.utils.load_img(image)
- 
-    y = img.img_to_array(img)
+#    img = tf.keras.utils.load_img(image)
+#    y = img.img_to_array(img)
     
-    x = np.expand_dims(y,axis=0)
+    x = np.expand_dims(image,axis=0)
     
-    model = tf.keras.models.load_model(model)
+    model = tf.keras.models.load_model(self.modelLocation)
 
     val = model.predict(x)
-    print(val)
-    
+    return val    
     
   
   def predict_folder(self,model,testSetLocation=None,see_architecture=False):

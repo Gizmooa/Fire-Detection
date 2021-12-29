@@ -12,7 +12,10 @@ import threading
 
 
 def classify_fire():
-    print("i func")
+    model = "/home/rasmus/Documents/Fire-Detection/src/saved_model/mymodel/"
+    threshold = 0.2
+
+    classifier = FireClassification(modelLocation=model)
     while True:
         # Wait for the next frame
         if not video.frame_available():
@@ -30,6 +33,12 @@ def classify_fire():
         # If the frame/image gets classified as a fire image, ping the authorities.
 
         frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
+        predict_value = classifier.predict_image(frame)
+
+        if threshold > predict_value:
+            print("FIRE!")
+        print(f"threshold = {predict_value}")
+
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
