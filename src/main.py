@@ -7,7 +7,11 @@ import threading
 import pathlib
 
 def classify_fire():
-    model = "/home/rasmus/Documents/Fire-Detection/src/saved_model/mymodel/"
+    abs_path = str(pathlib.Path(__file__).parent.resolve())
+    model = abs_path.replace("\\src", "\\saved_model\\mymodel")
+
+    #model = "/home/rasmus/Documents/Fire-Detection/src/saved_model/mymodel/"
+
     threshold = 0.2
 
     classifier = FireClassification(modelLocation=model)
@@ -41,7 +45,7 @@ if __name__ == '__main__':
     # These generic paths requires the model, training and test folder to be placed in
     # the absolute path of the project(outside of src) and in the folder /Training, /Test/ and
     # saved_model/mymodel
-    generic_model_path = abs_path.replace("\\src", "\\saved_model\\mymodel")
+    generic_model_location = abs_path.replace("\\src", "\\saved_model\\mymodel")
     generic_test_location = abs_path.replace("\\src", "\\Training")
     generic_training_location = abs_path.replace("\\src", "\\Test")
 
@@ -50,7 +54,7 @@ if __name__ == '__main__':
     #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
     model = "C:/Users/Sissel/PycharmProjects/Fire-Detection/saved_model/mymodel"
     # Load in the classifier, video stream, and mission classes.
-    classifier = FireClassification(trainingSetLocation=training_location, testSetLocation=test_location, modelLocation=model)
+    classifier = FireClassification(trainingSetLocation=generic_training_location, testSetLocation=generic_test_location, modelLocation=generic_model_location)
     video = Video()
 
     # Create two threads, one running the drone mission and another one
