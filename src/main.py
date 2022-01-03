@@ -8,7 +8,7 @@ import pathlib
 
 def classify_fire():
     abs_path = str(pathlib.Path(__file__).parent.resolve())
-    model = abs_path.replace("\\src", "\\saved_model\\mymodel")
+    model = abs_path.replace("/src", "/saved_model/mymodel")
 
     #model = "/home/rasmus/Documents/Fire-Detection/src/saved_model/mymodel/"
 
@@ -45,10 +45,13 @@ if __name__ == '__main__':
     # These generic paths requires the model, training and test folder to be placed in
     # the absolute path of the project(outside of src) and in the folder /Training, /Test/ and
     # saved_model/mymodel
-    generic_model_location = abs_path.replace("\\src", "\\saved_model\\mymodel")
-    generic_test_location = abs_path.replace("\\src", "\\Training")
-    generic_training_location = abs_path.replace("\\src", "\\Test")
-
+    generic_model_location = abs_path.replace("/src", "/saved_model/mymodel")
+    generic_test_location = abs_path.replace("/src", "/Training")
+    generic_training_location = abs_path.replace("/src", "/Test")
+    print(f"generic_model_location {generic_model_location}")
+    print(f"generic_test_location {generic_test_location}")
+    print(f"generic_training_location {generic_training_location}")
+    
     training_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Training"
     test_location = "C:/Users/Sissel/PycharmProjects/Fire-Detection/Test"
     #test_image = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
@@ -63,3 +66,4 @@ if __name__ == '__main__':
     fireThread = threading.Thread(target=classify_fire, name="Bob")
     droneThread.start()
     fireThread.start()
+    
