@@ -7,7 +7,7 @@ There are two parts of this project, a drone part, and a classification part. Th
 Running this project requires the user to have [PX4 Sitl](https://github.com/mavlink/qgroundcontrol/releases/download/v4.0.11/QGroundControl.AppImage), [QGroundControl](http://qgroundcontrol.com/) and [Gazebo](http://gazebosim.org/) downloaded. Inside PX4 we are using a modified version of the drone typhoon h480, to angle a camera downwards. 
 This sdf file are located in /typhoonH480/typhoon\_h480. And should replace the sdf file inside /path/to/px4/models/typhoon\_h480/typhoon\_h480.sdf. 
 
-After having the requirements, start by having both QGroundControl and Gazebo running. The gazebo should be started with the typhoon H480 drone, it can be started as the following inside the px4 folder:
+After having the requirements, start by having both QGroundControl(This should be started before Gazebo) and Gazebo running. The Gazebo should be started with the typhoon H480 drone, it can be started as the following inside the px4 folder:
 ```
 make px4_sitl gazebo_typhoon_h480
 ``` 
