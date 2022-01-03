@@ -97,6 +97,7 @@ def start_mission():
     # wait for a home position lock
     while not home_position_set:
         print ("Waiting for home position...")
+        continue 
         #time.sleep(1)
     print("home pos set")
     # Change to AUTO mode
