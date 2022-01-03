@@ -20,3 +20,5 @@ When everything is set up, the user can run the python file /src/main.py to star
 python3 main.py
 ```
 The drone will fly in a grid while having an open port on the camera. The script will then connect to the camera stream and perform classification on the images and print the predicted result.
+
+skriv at QGroundControl ikke virker altid og fker dronen op, dronen vil ikke altid starte
