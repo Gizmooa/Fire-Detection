@@ -11,6 +11,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 import os
 
+tf.get_logger().setLevel('ERROR')
 
 class FireClassification:
   """
@@ -56,6 +57,8 @@ class FireClassification:
   standardizeData
   
   createModel
+
+  predict_image
   
   predict_folder
     """
@@ -144,10 +147,7 @@ class FireClassification:
     -------
         None
     """
-    
-#    img = tf.keras.utils.load_img(image)
-#    y = img.img_to_array(img)
-    
+
     x = np.expand_dims(image,axis=0)
     
     model = tf.keras.models.load_model(self.modelLocation)
@@ -196,7 +196,6 @@ class FireClassification:
     if(see_architecture):
       model.summary()
     
-    #predictions = new_model.predict(testing_data)
     predictions = model.predict(testing_data)
     return predictions
 
@@ -247,36 +246,3 @@ class FireClassification:
     model.save("saved_model/mymodel")
     self.modelLocation = "saved_model/mymodel"
   
-
-if __name__ == "__main__":
-  #returnerer 1 for no fire, og 0 for fire
-  training_location = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Training"
-  test_location     = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire/"
-
-  #test_image        = "C:/Users/barth/Documents/studie/Fire-Detection/classification/test_data/Fire/resized_test_fire_frame1.jpg"
-  model = "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/src/saved_model/mymodel"
-  classifier = FireClassification(trainingSetLocation=training_location)
-  classifier.createDataset()
-  """prediction = classifier.predict_folder(model, testSetLocation=test_location)
-  for i in prediction:
-    print(i)"""
-  """model = tf.keras.models.load_model(model)
-  for image in os.listdir(test_location):
-    #prediction = classifier.predict_image(model, "/mnt/c/Users/Sissel/PycharmProjects/Fire-Detection/Test/Fire/" + image)
-    img = tf.keras.utils.load_img(test_location + image)
-    img_array = tf.keras.utils.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0)
-    val = model.predict(img_array)
-    print(val)"""
-  #classifier.createDataset()
-
-
-
-#  test1 = classifier.predict_folder(model=model,testSetLocation=test_location)
-#  test2 = classifier.predict_image(model,test_image)
-  
-#!mkdir -p saved_model
-#model.save("saved_model/mymodel")
-
-
-

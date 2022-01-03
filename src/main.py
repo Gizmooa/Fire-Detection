@@ -1,3 +1,4 @@
+from dronekit import Vehicle
 from cameraCapture import Video
 from fireClassifier import FireClassification
 import cv2
@@ -23,7 +24,9 @@ def classify_fire():
         currentHome = droneMission.home
         if currentHome is None:
             continue
-        wp = droneMission.get_location_offset_meters(currentHome, 0, 0, 0)
+        
+        wp = droneMission.vehicle.location.global_frame
+
         print(f'Current lat = {wp.lat}, current lon = {wp.lon}, current alt = {wp.alt}')
 
         frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
@@ -38,7 +41,7 @@ def classify_fire():
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
+        time.sleep(2)
 
 if __name__ == '__main__':
     abs_path = str(pathlib.Path(__file__).parent.resolve())

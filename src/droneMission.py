@@ -40,7 +40,7 @@ if args.connect:
 # Connect to the Vehicle
 print("Connecting")
 vehicle = connect(connection_string, wait_ready=True)
-time.sleep(10)
+
 
 ################################################################################################
 # Listeners
@@ -98,11 +98,11 @@ def start_mission():
     while not home_position_set:
         print ("Waiting for home position...")
         continue 
-        #time.sleep(1)
+        time.sleep(1)
     print("home pos set")
     # Change to AUTO mode
     PX4setMode(MAV_MODE_AUTO)
-    #time.sleep(1)
+    time.sleep(1)
 
     # Load commands
     cmds = vehicle.commands
@@ -111,7 +111,7 @@ def start_mission():
     home = vehicle.location.global_relative_frame
 
     # takeoff to 75 meters
-    wp = get_location_offset_meters(home, 0, 0, 75); #Height depends on height of trees in the area
+    wp = get_location_offset_meters(home, 0, 0, 30); #Height depends on height of trees in the area
     cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
     cmds.add(cmd)
 
@@ -177,30 +177,31 @@ def start_mission():
 
     # Upload mission
     cmds.upload()
-    #time.sleep(2)
+    time.sleep(2)
 
     # Arm vehicle
     vehicle.armed = True
+    
 
     # monitor mission execution
     nextwaypoint = vehicle.commands.next
     while nextwaypoint < len(vehicle.commands):
         if vehicle.commands.next > nextwaypoint:
             display_seq = vehicle.commands.next+1
-            print("Moving to waypoint %s" % display_seq)
+            print("\nMoving to waypoint %s" % display_seq)
             nextwaypoint = vehicle.commands.next
-        #time.sleep(1)
+        time.sleep(1)
 
     # wait for the vehicle to land
     while vehicle.commands.next > 0:
-        pass
-        #time.sleep(1)
+        #vehicle.location.global_frame
+        time.sleep(1)
 
 
     # Disarm vehicle
     vehicle.armed = False
-    #time.sleep(1)
+    time.sleep(1)
 
     # Close vehicle object before exiting script
     vehicle.close()
-    #time.sleep(1)
+    time.sleep(1)
