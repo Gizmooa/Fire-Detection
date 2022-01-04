@@ -27,6 +27,8 @@ MAV_MODE_AUTO   = 4
 # Parse connection argument
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--connect", help="connection string")
+parser.add_argument("-he",'--height', type=int,
+                    help='Option to change the default height to something else.')
 args = parser.parse_args()
 
 if args.connect:
@@ -85,10 +87,11 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
     return LocationGlobal(newlat, newlon,original_location.alt+alt)
 
 
-def start_mission(cmd_height):
+def start_mission():
     global vehicle
     global home
     global home_position_set
+    global args
 
     ################################################################################################
     # Start mission example
@@ -111,10 +114,9 @@ def start_mission(cmd_height):
     home = vehicle.location.global_relative_frame
 
     height = 50
-    print(cmd_height)
-    if (cmd_height != None):
-        print(f"Changing default height from 50 to {cmd_height}")
-        height = cmd_height
+    if (args.height != None):
+        print(f"Changing default height from 50 to {args.height}")
+        height = args.height
 
     # If no argument for height have been given, take off to 50 meters. Otherwise to the specified height.
     wp = get_location_offset_meters(home, 0, 0, height); #Height depends on height of trees in the area
@@ -191,6 +193,7 @@ def start_mission(cmd_height):
 
     # monitor mission execution
     nextwaypoint = vehicle.commands.next
+    print(f"Moving to waypoint {nextwaypoint+1}")
     while nextwaypoint < len(vehicle.commands):
         if vehicle.commands.next > nextwaypoint:
             display_seq = vehicle.commands.next+1
