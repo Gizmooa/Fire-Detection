@@ -111,7 +111,7 @@ def start_mission():
     home = vehicle.location.global_relative_frame
 
     height = 50
-    if (sys.argv[1] > 0):
+    if (sys.argv[1] > 0 or sys.argv[1] != None):
         print(f"Changing default height from 50 to {sys.argv[1]}")
         height = sys.argv[1]
 
