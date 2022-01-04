@@ -111,8 +111,9 @@ def start_mission(cmd_height):
     home = vehicle.location.global_relative_frame
 
     height = 50
+    print(cmd_height)
     if (cmd_height != None):
-        print(f"Changing default height from 50 to {sys.argv[1]}")
+        print(f"Changing default height from 50 to {cmd_height}")
         height = cmd_height
 
     # If no argument for height have been given, take off to 50 meters. Otherwise to the specified height.
