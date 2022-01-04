@@ -1,10 +1,11 @@
+import random
+import shutil
 from imp import new_module
 import numpy as np
 import os
 import PIL
 import pathlib
 import tensorflow as tf
-
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -241,20 +242,15 @@ class FireClassification:
             callbacks=[callback]
         )
 
-        model.save("saved_model/mymodel2")
-        self.modelLocation = "saved_model/mymodel2"
+        model.save("saved_model/mymodel")
+        self.modelLocation = "saved_model/mymodel"
 
     def test_model(self):
-        model = tf.keras.models.load_model("/mnt/c/users/sissel/PycharmProjects/Fire-Detection/src/saved_model/mymodel3")
+        model = tf.keras.models.load_model(self.modelLocation)
         testing_data = tf.keras.utils.image_dataset_from_directory(self.testSetLocation,
                                                                    image_size=(self.img_height, self.img_width),
                                                                    labels='inferred')
-        print(len(testing_data))
-        baseline_results = model.evaluate(testing_data)
-        for name, value in zip(model.metrics_names, baseline_results):
-            print(name, ': ', value)
-        print()
-
+        model.evaluate(testing_data)
 
 
 
