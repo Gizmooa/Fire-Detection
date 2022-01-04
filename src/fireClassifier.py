@@ -5,16 +5,19 @@ import PIL
 import pathlib
 import tensorflow as tf
 
-
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 import os
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 tf.get_logger().setLevel('ERROR')
 
+
 class FireClassification:
-  """
+    """
   [summary]
 
   Attributes
@@ -62,60 +65,59 @@ class FireClassification:
   
   predict_folder
     """
-    
-  trainingSetLocation = None
-  testSetLocation = None
-  modelLocation = None
-  batch_size = None
-  img_height = None
-  img_width = None
-  num_classes = None
 
-  def __init__(self, modelLocation = None, testSetLocation = None, 
-               trainingSetLocation = None, batch_size = 32,
-               img_height = 254, img_width = 254, num_classes = 2, seed=42):
+    trainingSetLocation = None
+    testSetLocation = None
+    modelLocation = None
+    batch_size = None
+    img_height = None
+    img_width = None
+    num_classes = None
 
-    self.modelLocation = modelLocation
-    self.testSetLocation = testSetLocation
-    self.trainingSetLocation = trainingSetLocation
-    self.batch_size = batch_size
-    self.img_height = img_height
-    self.img_width = img_width
-    self.num_classes = num_classes
-    self.seed = seed
+    def __init__(self, modelLocation=None, testSetLocation=None,
+                 trainingSetLocation=None, batch_size=32,
+                 img_height=254, img_width=254, num_classes=2, seed=42):
 
+        self.modelLocation = modelLocation
+        self.testSetLocation = testSetLocation
+        self.trainingSetLocation = trainingSetLocation
+        self.batch_size = batch_size
+        self.img_height = img_height
+        self.img_width = img_width
+        self.num_classes = num_classes
+        self.seed = seed
 
-  def createDataset(self):
-    """Creates the data from the given trainingset location, creates a valida-
+    def createDataset(self):
+        """Creates the data from the given trainingset location, creates a valida-
     tion split at 0.2. The seed given to the FireClassification object is used
     here for shuffeling and transformations. 
     """
-    train_ds = tf.keras.utils.image_dataset_from_directory(
-      self.trainingSetLocation,
-      validation_split=0.2,
-      subset="training",
-      seed=self.seed,
-      shuffle=True,
-      image_size=(self.img_height, self.img_width),
-      batch_size=self.batch_size)
+        train_ds = tf.keras.utils.image_dataset_from_directory(
+            self.trainingSetLocation,
+            validation_split=0.2,
+            subset="training",
+            seed=self.seed,
+            shuffle=True,
+            image_size=(self.img_height, self.img_width),
+            batch_size=self.batch_size)
 
-    val_ds = tf.keras.utils.image_dataset_from_directory(
-      self.trainingSetLocation, #Should this not be testsetlocation. 
-      validation_split=0.2,
-      subset="validation",
-      seed=self.seed,
-      shuffle=True,
-      image_size=(self.img_height, self.img_width),
-      batch_size=self.batch_size)
-    AUTOTUNE = tf.data.AUTOTUNE
+        val_ds = tf.keras.utils.image_dataset_from_directory(
+            self.trainingSetLocation,  # Should this not be testsetlocation.
+            validation_split=0.2,
+            subset="validation",
+            seed=self.seed,
+            shuffle=True,
+            image_size=(self.img_height, self.img_width),
+            batch_size=self.batch_size)
+        AUTOTUNE = tf.data.AUTOTUNE
 
-    #train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-    #val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-    self.standardizeData(train_ds, val_ds)
+        # train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+        # val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+        #self.standardizeData(train_ds, val_ds)
+        self.createModel(train_ds, val_ds)
 
-
-  def standardizeData(self, train_ds, val_ds):
-    """[summary]
+    def standardizeData(self, train_ds, val_ds):
+        """[summary]
 
     Parameters
     ----------
@@ -125,15 +127,14 @@ class FireClassification:
     val_ds : tf.data.Dataset 
         [description]
     """
-    normalization_layer = layers.Rescaling(1./255)
-    normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
-    # De 2 variabler bliver ikke brugt?
-    image_batch, labels_batch = next(iter(normalized_ds))
-    self.createModel(train_ds, val_ds)
-  
-  
-  def predict_image(self,image,show_image=False):
-    """Takes an image and classifies that picture with the model.
+        normalization_layer = layers.Rescaling(1. / 255)
+        normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
+        # De 2 variabler bliver ikke brugt?
+        image_batch, labels_batch = next(iter(normalized_ds))
+        self.createModel(train_ds, val_ds)
+
+    def predict_image(self, image, show_image=False):
+        """Takes an image and classifies that picture with the model.
      
     Parameters
     ----------
@@ -148,16 +149,15 @@ class FireClassification:
         None
     """
 
-    x = np.expand_dims(image,axis=0)
-    
-    model = tf.keras.models.load_model(self.modelLocation)
+        x = np.expand_dims(image, axis=0)
 
-    val = model.predict(x)
-    return val    
-    
-  
-  def predict_folder(self,model,testSetLocation=None,see_architecture=False):
-    """Takes an existing fire classifier, and test it on the given test data.  
+        model = tf.keras.models.load_model(self.modelLocation)
+
+        val = model.predict(x)
+        return val
+
+    def predict_folder(self, model, testSetLocation=None, see_architecture=False):
+        """Takes an existing fire classifier, and test it on the given test data.
   
     Parameters
     ----------
@@ -181,26 +181,24 @@ class FireClassification:
         ifier predicts that there is a fire. If its (0,5-1], it predicts there
         is no fire. 
     """
-    
-    
-    if (testSetLocation == None):
-      testSetLocation = self.testSetLocation
-      
-      
-    model = tf.keras.models.load_model(model)
 
-    testing_data = tf.keras.utils.image_dataset_from_directory(testSetLocation,
-                              image_size=(self.img_height,self.img_width),
-                              labels='inferred')
+        if (testSetLocation == None):
+            testSetLocation = self.testSetLocation
 
-    if(see_architecture):
-      model.summary()
-    
-    predictions = model.predict(testing_data)
-    return predictions
+        model = tf.keras.models.load_model(model)
 
-  def createModel(self, train_ds, val_ds,epochs=10):
-    """Creates the model from the training data set. It can then validate the
+        testing_data = tf.keras.utils.image_dataset_from_directory(testSetLocation,
+                                                                   image_size=(self.img_height, self.img_width),
+                                                                   labels='inferred')
+
+        if (see_architecture):
+            model.summary()
+
+        predictions = model.predict(testing_data)
+        return predictions
+
+    def createModel(self, train_ds, val_ds, epochs=10):
+        """Creates the model from the training data set. It can then validate the
     the models performance with the given validation data set.
 
     Parameters
@@ -214,35 +212,49 @@ class FireClassification:
     epochs : (int,optional) 
         The number of epochs used to create the model. Is set to 1 by default.  
     """
-    model = Sequential([
-      layers.Rescaling(1./255, input_shape=(self.img_height, self.img_width, 3)),
-      layers.Conv2D(16, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(32, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(64, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Dropout(0.2),
-      layers.Flatten(),
-      layers.Dense(128, activation='relu'),
-      layers.Dense(1,activation='sigmoid')
-    ])
+        model = Sequential([
+            layers.Rescaling(1. / 255, input_shape=(self.img_height, self.img_width, 3)),
+            layers.Conv2D(16, 3, padding='same', activation='relu'),
+            layers.MaxPooling2D(),
+            layers.Conv2D(32, 3, padding='same', activation='relu'),
+            layers.MaxPooling2D(),
+            layers.Conv2D(64, 3, padding='same', activation='relu'),
+            layers.MaxPooling2D(),
+            layers.Conv2D(128, 3, padding='same', activation='relu'),
+            layers.MaxPooling2D(),
+            layers.Dropout(0.2),
+            layers.Flatten(),
+            layers.Dense(256, activation='relu'),
+            layers.Dense(1, activation='sigmoid')
+        ])
 
-    callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
+        callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
+
+        model.compile(optimizer='adam',
+                      loss='binary_crossentropy',
+                      metrics=['accuracy'])
+
+        history = model.fit(
+            train_ds,
+            validation_data=val_ds,
+            epochs=epochs,
+            callbacks=[callback]
+        )
+
+        model.save("saved_model/mymodel2")
+        self.modelLocation = "saved_model/mymodel2"
+
+    def test_model(self):
+        model = tf.keras.models.load_model("/mnt/c/users/sissel/PycharmProjects/Fire-Detection/src/saved_model/mymodel3")
+        testing_data = tf.keras.utils.image_dataset_from_directory(self.testSetLocation,
+                                                                   image_size=(self.img_height, self.img_width),
+                                                                   labels='inferred')
+        print(len(testing_data))
+        baseline_results = model.evaluate(testing_data)
+        for name, value in zip(model.metrics_names, baseline_results):
+            print(name, ': ', value)
+        print()
 
 
-    model.compile(optimizer='adam',
-                  loss='binary_crossentropy',
-                  metrics=['accuracy'])
 
-    
-    history = model.fit(
-      train_ds,
-      validation_data=val_ds,
-      epochs=epochs,
-      callbacks=[callback]
-    )
-    
-    model.save("saved_model/mymodel")
-    self.modelLocation = "saved_model/mymodel"
-  
+
