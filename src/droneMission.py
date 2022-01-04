@@ -85,7 +85,7 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
     return LocationGlobal(newlat, newlon,original_location.alt+alt)
 
 
-def start_mission():
+def start_mission(cmd_height):
     global vehicle
     global home
     global home_position_set
@@ -111,9 +111,9 @@ def start_mission():
     home = vehicle.location.global_relative_frame
 
     height = 50
-    if (sys.argv[1] > 0 or sys.argv[1] != None):
+    if (cmd_height != None):
         print(f"Changing default height from 50 to {sys.argv[1]}")
-        height = sys.argv[1]
+        height = cmd_height
 
     # If no argument for height have been given, take off to 50 meters. Otherwise to the specified height.
     wp = get_location_offset_meters(home, 0, 0, height); #Height depends on height of trees in the area

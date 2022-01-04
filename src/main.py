@@ -6,6 +6,7 @@ import droneMission
 import time
 import threading
 import pathlib
+import sys
 
 
 def classify_fire(fireClassifier):
@@ -62,7 +63,7 @@ if __name__ == '__main__':
 
     # Create two threads, one running the drone mission and another one
     # performing classification on images from the typhoon h480 drone.
-    droneThread = threading.Thread(target=droneMission.start_mission, name="droneThread")
+    droneThread = threading.Thread(target=droneMission.start_mission, args=(sys.argv[1],), name="droneThread")
     fireThread = threading.Thread(target=classify_fire, args=(classifier,), name="fireThread")
     droneThread.start()
     fireThread.start()
