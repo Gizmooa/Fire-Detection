@@ -85,7 +85,7 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
     return LocationGlobal(newlat, newlon,original_location.alt+alt)
 
 
-def start_mission():
+def start_mission(cmd_height):
     global vehicle
     global home
     global home_position_set
@@ -110,8 +110,14 @@ def start_mission():
 
     home = vehicle.location.global_relative_frame
 
-    # takeoff to 75 meters
-    wp = get_location_offset_meters(home, 0, 0, 30); #Height depends on height of trees in the area
+    height = 50
+    print(cmd_height)
+    if (cmd_height != None):
+        print(f"Changing default height from 50 to {cmd_height}")
+        height = cmd_height
+
+    # If no argument for height have been given, take off to 50 meters. Otherwise to the specified height.
+    wp = get_location_offset_meters(home, 0, 0, height); #Height depends on height of trees in the area
     cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
     cmds.add(cmd)
 
