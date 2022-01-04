@@ -11,6 +11,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 import os
 
+#Remove warnings from tensorflow. 
 tf.get_logger().setLevel('ERROR')
 
 class FireClassification:
