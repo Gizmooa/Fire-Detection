@@ -65,7 +65,7 @@ class FireClassification:
 
   predict_image
   
-  predict_folder
+  test_model
     """
 
     trainingSetLocation = None
@@ -75,6 +75,8 @@ class FireClassification:
     img_height = None
     img_width = None
     num_classes = None
+    train_ds    = None
+    val_ds      = None
 
     def __init__(self, modelLocation=None, testSetLocation=None,
                  trainingSetLocation=None, batch_size=32,
@@ -92,9 +94,10 @@ class FireClassification:
     def createDataset(self):
         """Creates the data from the given trainingset location, creates a valida-
     tion split at 0.2. The seed given to the FireClassification object is used
-    here for shuffeling and transformations. 
+    here for shuffeling and transformations. Sets the attributes val_ds and 
+    train_ds to the correct vaules. 
     """
-        train_ds = tf.keras.utils.image_dataset_from_directory(
+        self.train_ds = tf.keras.utils.image_dataset_from_directory(
             self.trainingSetLocation,
             validation_split=0.2,
             subset="training",
@@ -103,37 +106,15 @@ class FireClassification:
             image_size=(self.img_height, self.img_width),
             batch_size=self.batch_size)
 
-        val_ds = tf.keras.utils.image_dataset_from_directory(
-            self.trainingSetLocation,  # Should this not be testsetlocation.
+        self.val_ds = tf.keras.utils.image_dataset_from_directory(
+            self.trainingSetLocation,  
             validation_split=0.2,
             subset="validation",
             seed=self.seed,
             shuffle=True,
             image_size=(self.img_height, self.img_width),
             batch_size=self.batch_size)
-        AUTOTUNE = tf.data.AUTOTUNE
-
-        # train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-        # val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-        #self.standardizeData(train_ds, val_ds)
-        self.createModel(train_ds, val_ds)
-
-    def standardizeData(self, train_ds, val_ds):
-        """[summary]
-
-    Parameters
-    ----------
-    train_ds : tf.data.Dataset 
-        [description]
         
-    val_ds : tf.data.Dataset 
-        [description]
-    """
-        normalization_layer = layers.Rescaling(1. / 255)
-        normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
-        # De 2 variabler bliver ikke brugt?
-        image_batch, labels_batch = next(iter(normalized_ds))
-        self.createModel(train_ds, val_ds)
 
     def predict_image(self, image, show_image=False):
         """Takes an image and classifies that picture with the model.
@@ -158,7 +139,7 @@ class FireClassification:
         val = model.predict(x)
         return val
 
-    def predict_folder(self, model, testSetLocation=None, see_architecture=False):
+    def test_model(self, model, testSetLocation=None, see_architecture=False):
         """Takes an existing fire classifier, and test it on the given test data.
   
     Parameters
@@ -196,21 +177,15 @@ class FireClassification:
         if (see_architecture):
             model.summary()
 
-        predictions = model.predict(testing_data)
+        predictions = model.evaluate(testing_data)
         return predictions
 
-    def createModel(self, train_ds, val_ds, epochs=10):
+    def create_and_train_model(self, epochs=10):
         """Creates the model from the training data set. It can then validate the
     the models performance with the given validation data set.
 
     Parameters
     ----------
-    train_ds : (tf.data.Dataset object): 
-        [description]
-        
-    val_ds : (tf.data.Dataset object): 
-        [description]
-        
     epochs : (int,optional) 
         The number of epochs used to create the model. Is set to 1 by default.  
     """
@@ -236,22 +211,17 @@ class FireClassification:
                       loss='binary_crossentropy',
                       metrics=['accuracy'])
 
-        history = model.fit(
-            train_ds,
-            validation_data=val_ds,
+        model.fit(
+            self.train_ds,
+            validation_data=self.val_ds,
             epochs=epochs,
             callbacks=[callback]
         )
+        
+        abs_path = str(pathlib.Path(__file__).parent.resolve())
 
-        model.save("saved_model/mymodel")
-        self.modelLocation = "saved_model/mymodel"
+        model_location = abs_path.replace("/src","saved_model/mymodel")
 
-    def test_model(self):
-        model = tf.keras.models.load_model(self.modelLocation)
-        testing_data = tf.keras.utils.image_dataset_from_directory(self.testSetLocation,
-                                                                   image_size=(self.img_height, self.img_width),
-                                                                   labels='inferred')
-        model.evaluate(testing_data)
+        model.save(model_location)
 
-
-
+        self.modelLocation = model_location
