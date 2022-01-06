@@ -14,7 +14,7 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-#Remove warnings from tensorflow. 
+# Remove warnings from tensorflow.
 tf.get_logger().setLevel('ERROR')
 
 
@@ -75,8 +75,8 @@ class FireClassification:
     img_height = None
     img_width = None
     num_classes = None
-    train_ds    = None
-    val_ds      = None
+    train_ds = None
+    val_ds = None
 
     def __init__(self, modelLocation=None, testSetLocation=None,
                  trainingSetLocation=None, batch_size=32,
@@ -107,14 +107,13 @@ class FireClassification:
             batch_size=self.batch_size)
 
         self.val_ds = tf.keras.utils.image_dataset_from_directory(
-            self.trainingSetLocation,  
+            self.trainingSetLocation,
             validation_split=0.2,
             subset="validation",
             seed=self.seed,
             shuffle=True,
             image_size=(self.img_height, self.img_width),
             batch_size=self.batch_size)
-        
 
     def predict_image(self, image, show_image=False):
         """Takes an image and classifies that picture with the model.
@@ -139,7 +138,7 @@ class FireClassification:
         val = model.predict(x)
         return val
 
-    def test_model(self, model, testSetLocation=None, see_architecture=False):
+    def test_model(self, model, testSetLocation=None, see_architecture=False, see_confusion_matrix=True):
         """Takes an existing fire classifier, and test it on the given test data.
   
     Parameters
@@ -154,7 +153,11 @@ class FireClassification:
          
     see_architecture : bool, optional
         Prints the architecture of the model, if it is set to true. It is false 
-        by default. 
+        by default.
+
+    see_confusion_matrix : bool, optional
+        Prints the confusion matrix for the models predictions on the test data set.
+        It is true by default.
     
     Returns
     -------
@@ -177,8 +180,23 @@ class FireClassification:
         if (see_architecture):
             model.summary()
 
+
         predictions = model.evaluate(testing_data)
+
+        if (see_confusion_matrix == True):
+            labels_list = np.array([])
+            prediction_list = np.array([])
+
+            for images, labels in testing_data:
+                labels_list = np.concatenate((labels_list, labels))
+                prediction_list = np.concatenate((prediction_list, model.predict_on_batch(images).flatten()))
+
+            print(confusion_matrix(labels_list, prediction_list > 0.2))
+
+
         return predictions
+
+
 
     def create_and_train_model(self, epochs=10):
         """Creates the model from the training data set. It can then validate the
@@ -193,15 +211,10 @@ class FireClassification:
             layers.Rescaling(1. / 255, input_shape=(self.img_height, self.img_width, 3)),
             layers.Conv2D(16, 3, padding='same', activation='relu'),
             layers.MaxPooling2D(),
-            layers.Conv2D(32, 3, padding='same', activation='relu'),
-            layers.MaxPooling2D(),
             layers.Conv2D(64, 3, padding='same', activation='relu'),
             layers.MaxPooling2D(),
-            layers.Conv2D(128, 3, padding='same', activation='relu'),
-            layers.MaxPooling2D(),
-            layers.Dropout(0.2),
             layers.Flatten(),
-            layers.Dense(256, activation='relu'),
+            layers.Dense(128, activation='relu'),
             layers.Dense(1, activation='sigmoid')
         ])
 
@@ -217,10 +230,10 @@ class FireClassification:
             epochs=epochs,
             callbacks=[callback]
         )
-        
+
         abs_path = str(pathlib.Path(__file__).parent.resolve())
 
-        model_location = abs_path.replace("/src","saved_model/mymodel")
+        model_location = abs_path.replace("/src", "/saved_model/mymodelny")
 
         model.save(model_location)
 
