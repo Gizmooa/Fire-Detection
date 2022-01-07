@@ -59,9 +59,7 @@ class FireClassification:
   -------
   createDataset
   
-  standardizeData
-  
-  createModel
+  create_and_train_model
 
   predict_image
   
@@ -138,7 +136,7 @@ class FireClassification:
         val = model.predict(x)
         return val
 
-    def test_model(self, model, testSetLocation=None, see_architecture=False, see_confusion_matrix=True):
+    def test_model(self, model, testSetLocation=None, see_architecture=False, get_confusion_matrix=True):
         """Takes an existing fire classifier, and test it on the given test data.
   
     Parameters
@@ -155,10 +153,11 @@ class FireClassification:
         Prints the architecture of the model, if it is set to true. It is false 
         by default.
 
-    see_confusion_matrix : bool, optional
-        Prints the confusion matrix for the models predictions on the test data set.
+    get_confusion_matrix : bool, optional
+        Creates and saves the confusion matrix for the models predictions on the test data set.
+        It is saved in the file "cm.png"
         It is true by default.
-    
+    #TODO: ændr kommentaren om hvad den returnerer
     Returns
     -------
     predictions : numpy array
@@ -183,7 +182,9 @@ class FireClassification:
 
         predictions = model.evaluate(testing_data)
 
-        if (see_confusion_matrix == True):
+        if (get_confusion_matrix == True):
+            abs_path = str(pathlib.Path(__file__).parent.resolve())
+            cm_path = abs_path.replace("/src", "/")
             labels_list = np.array([])
             prediction_list = np.array([])
 
@@ -191,8 +192,13 @@ class FireClassification:
                 labels_list = np.concatenate((labels_list, labels))
                 prediction_list = np.concatenate((prediction_list, model.predict_on_batch(images).flatten()))
 
-            print(confusion_matrix(labels_list, prediction_list > 0.2))
-
+            cm = confusion_matrix(labels_list, prediction_list > 0.2)
+            plt.figure(figsize=(5, 5))
+            sns.heatmap(cm, annot=True, fmt="d", linewidths=.5, linecolor='black', cbar=False, cmap='binary', xticklabels= ['Fire', 'No Fire'], yticklabels= ['Fire', 'No Fire'])
+            plt.title('Confusion matrix @{:.2f}'.format(0.2))
+            plt.ylabel('Actual label')
+            plt.xlabel('Predicted label')
+            plt.savefig(cm_path + 'cm')
 
         return predictions
 
