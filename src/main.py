@@ -8,6 +8,7 @@ import threading
 import pathlib
 import argparse
 import sys
+from datetime import datetime
 
 
 def classify_fire(fireClassifier):
@@ -38,8 +39,12 @@ def classify_fire(fireClassifier):
         predict_value = fireClassifier.predict_image(frame)
 
         if threshold > predict_value:
-            # TODO - Ping authorities as we've detected fire!
-            print(f"[-] We've detected fire with the probability of {(1-predict_value)*100} percent")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+            print(f"[FIRE DETECTED] We've detected fire with the probability of {(1-predict_value)*100} percent")
+            print(f'[FIRE DETECTED] The fire were found at: lat = {wp.lat}, lon = {wp.lon}, alt = {wp.alt}')
+            print(f'[FIRE DETECTED] The date and time of the fire found are: {dt_string}')
         else:
             print(f"[+] No fire detected!")
 
