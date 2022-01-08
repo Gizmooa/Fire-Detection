@@ -49,9 +49,10 @@ def classify_fire(fireClassifier):
             print(f"[+] No fire detected!")
 
         cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q') or Vehicle.mission_is_done == True:
             break
         time.sleep(2)
+        
 
 
 

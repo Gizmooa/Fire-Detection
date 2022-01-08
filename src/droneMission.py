@@ -14,6 +14,7 @@ import time, sys, argparse, math
 
 vehicle = None
 home = None
+mission_is_done = False
 
 ################################################################################################
 # Settings
@@ -92,6 +93,7 @@ def start_mission():
     global home
     global home_position_set
     global args
+    global mission_is_done
 
     ################################################################################################
     # Start mission example
@@ -209,6 +211,7 @@ def start_mission():
 
     # Disarm vehicle
     vehicle.armed = False
+    mission_is_done = True
     time.sleep(1)
 
     # Close vehicle object before exiting script
