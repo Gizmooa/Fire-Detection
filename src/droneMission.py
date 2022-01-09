@@ -99,11 +99,10 @@ def start_mission():
     # Start mission example
     ################################################################################################
 
-    # wait for a home position lock
     while not home_position_set:
         print ("Waiting for home position...")
-        continue 
-        time.sleep(1)
+        time.sleep(3)
+        
     print("home pos set")
     # Change to AUTO mode
     PX4setMode(MAV_MODE_AUTO)
