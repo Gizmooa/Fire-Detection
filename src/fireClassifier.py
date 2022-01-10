@@ -17,7 +17,7 @@ class FireClassification:
   ----------
   modelLocation : str, optional
       The location where the model is saved as an absolute path. If it is 
-      unset, it will be saved in the current folder as saved_model/new_model.
+      unset, it will be saved in the current folder as saved_model/mymodel.
           
   testSetLocation : str, optional 
       The absolute path to the folder, that holds the test set data. If it is
@@ -234,7 +234,7 @@ class FireClassification:
 
         abs_path = str(pathlib.Path(__file__).parent.resolve())
 
-        model_location = abs_path.replace("/src", "/saved_model/new_model")
+        model_location = abs_path.replace("/src", "/saved_model/mymodel")
 
         model.save(model_location)
 

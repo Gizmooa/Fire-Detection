@@ -1,8 +1,0 @@
-fire_piture0.png was found: 09/01/2022 10:49:30 at the cordinates: lat = 37.4135431, lon = -121.9965499 alt = 1.616
-fire_piture1.png was found: 09/01/2022 10:49:38 at the cordinates: lat = 37.4135431, lon = -121.9965494 alt = 2.47
-fire_piture2.png was found: 09/01/2022 10:49:44 at the cordinates: lat = 37.4135429, lon = -121.9965502 alt = 11.555
-fire_piture3.png was found: 09/01/2022 10:49:52 at the cordinates: lat = 37.4135431, lon = -121.9965505 alt = 26.579
-fire_piture4.png was found: 09/01/2022 10:49:59 at the cordinates: lat = 37.4135885, lon = -121.9965523 alt = 31.506
-fire_piture5.png was found: 09/01/2022 10:50:09 at the cordinates: lat = 37.4138521, lon = -121.996551 alt = 31.442
-fire_piture6.png was found: 09/01/2022 10:50:15 at the cordinates: lat = 37.4139909, lon = -121.9963869 alt = 31.684
-fire_piture7.png was found: 09/01/2022 10:50:22 at the cordinates: lat = 37.413921, lon = -121.9962763 alt = 31.785
