@@ -9,6 +9,7 @@ import pathlib
 import argparse
 import sys
 import os
+import shutil
 from datetime import datetime
 
 
@@ -24,8 +25,9 @@ def classify_fire(fireClassifier):
     threshold = 0.2
     
     # Change current directory, so we can save the fire pictures and their locations.
+    
     os.chdir("fire_pictures")
-    fire_location = open("fire_locations.txt",'w')
+    fire_location = open("fire_locations.txt",'a')
     
     i = 0
     while True:
@@ -86,6 +88,14 @@ if __name__ == '__main__':
     model_location = abs_path.replace("/src", "/saved_model/mymodel")
     test_location = abs_path.replace("/src", "/Training")
     training_location = abs_path.replace("/src", "/Test")
+    fire_pictures = abs_path.replace("/src","/src/fire_pictures")
+
+    if (os.path.exists(fire_pictures)):
+        shutil.rmtree(fire_pictures)
+        os.mkdir(fire_pictures)
+    else:
+        os.mkdir(fire_pictures)
+
 
     # Load in the classifier, video stream, and mission classes.
     classifier = FireClassification(trainingSetLocation=training_location,
@@ -98,4 +108,8 @@ if __name__ == '__main__':
     fireThread = threading.Thread(target=classify_fire, args=(classifier,), name="fireThread")
     droneThread.start()
     fireThread.start()
+
+
+
+    
     
