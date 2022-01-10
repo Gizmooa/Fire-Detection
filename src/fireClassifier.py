@@ -1,9 +1,5 @@
-import random
-import shutil
 from imp import new_module
 import numpy as np
-import os
-import PIL
 import pathlib
 import tensorflow as tf
 from tensorflow import keras

@@ -1,4 +1,3 @@
-from dronekit import Vehicle
 from cameraCapture import Video
 from fireClassifier import FireClassification
 import cv2
@@ -6,8 +5,6 @@ import droneMission
 import time
 import threading
 import pathlib
-import argparse
-import sys
 import os
 import shutil
 from datetime import datetime
@@ -86,8 +83,8 @@ if __name__ == '__main__':
     # the absolute path of the project(outside of src) and in the folder /Training, /Test/ and
     # saved_model/mymodel
     model_location = abs_path.replace("/src", "/saved_model/mymodel")
-    test_location = abs_path.replace("/src", "/Training")
-    training_location = abs_path.replace("/src", "/Test")
+    test_location = abs_path.replace("/src", "/Test")
+    training_location = abs_path.replace("/src", "/Training")
     fire_pictures = abs_path.replace("/src","/src/fire_pictures")
 
     if (os.path.exists(fire_pictures)):
@@ -108,8 +105,4 @@ if __name__ == '__main__':
     fireThread = threading.Thread(target=classify_fire, args=(classifier,), name="fireThread")
     droneThread.start()
     fireThread.start()
-
-
-
-    
     
