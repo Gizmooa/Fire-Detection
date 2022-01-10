@@ -53,7 +53,11 @@ class FireClassification:
   
   seed : int, optional 
       A seed for the random generator used, to shuffle the given data and trans-
-      formation. Default value is 42. 
+      formation. Default value is 42.
+
+  threshold : float, optional
+      A threshold for the classifier, used to determine when the classifier
+      predicts fire.
   
   Methods
   -------
@@ -75,10 +79,11 @@ class FireClassification:
     num_classes = None
     train_ds = None
     val_ds = None
+    threshold = None
 
     def __init__(self, modelLocation=None, testSetLocation=None,
                  trainingSetLocation=None, batch_size=32,
-                 img_height=254, img_width=254, num_classes=2, seed=42):
+                 img_height=254, img_width=254, num_classes=2, seed=42, threshold=0.2):
 
         self.modelLocation = modelLocation
         self.testSetLocation = testSetLocation
@@ -88,6 +93,7 @@ class FireClassification:
         self.img_width = img_width
         self.num_classes = num_classes
         self.seed = seed
+        self.threshold = threshold
 
     def createDataset(self):
         """Creates the data from the given trainingset location, creates a valida-
@@ -154,18 +160,16 @@ class FireClassification:
         by default.
 
     get_confusion_matrix : bool, optional
-        Creates and saves the confusion matrix for the models predictions on the test data set.
-        It is saved in the file "cm.png"
-        It is true by default.
-    #TODO: ændr kommentaren om hvad den returnerer
+        Creates and saves the confusion matrix for the models predictions on the
+        test data set. It is saved in the file "cm.png" It is true by default.
+
     Returns
     -------
-    predictions : numpy array
-        A numpy array where each entry is how sure the classifier is, that the
-        given picture fire or nonfire. If the entry is (0-0.5], the class-
-        ifier predicts that there is a fire. If its (0,5-1], it predicts there
-        is no fire. 
-    """
+        evaluations : numpy array Scalar test loss (if the model has a single output and no
+        metrics) or list of scalars (if the model has multiple outputs and/or metrics). The attribute model.metrics_names
+        will give you the display labels for the scalar outputs.
+        https://www.tensorflow.org/api_docs/python/tf/keras/Model#evaluate
+        """
 
         if (testSetLocation == None):
             testSetLocation = self.testSetLocation
@@ -192,10 +196,10 @@ class FireClassification:
                 labels_list = np.concatenate((labels_list, labels))
                 prediction_list = np.concatenate((prediction_list, model.predict_on_batch(images).flatten()))
 
-            cm = confusion_matrix(labels_list, prediction_list > 0.2)
+            cm = confusion_matrix(labels_list, prediction_list > self.threshold)
             plt.figure(figsize=(5, 5))
             sns.heatmap(cm, annot=True, fmt="d", linewidths=.5, linecolor='black', cbar=False, cmap='binary', xticklabels= ['Fire', 'No Fire'], yticklabels= ['Fire', 'No Fire'])
-            plt.title('Confusion matrix @{:.2f}'.format(0.2))
+            plt.title('Confusion matrix @{:.2f}'.format(self.threshold))
             plt.ylabel('Actual label')
             plt.xlabel('Predicted label')
             plt.savefig(cm_path + 'cm')
