@@ -19,7 +19,7 @@ def classify_fire(fireClassifier):
     # Threshold are a variable describing how accurate the classifier should be
     # on the prediction of fire, before alerting. Here, if the threshold is set to 0.2
     # the system will alert if the classifier are 80 percent sure there are fire.
-    threshold = 0.2
+    threshold = fireClassifier.threshold
     
     # Change current directory, so we can save the fire pictures and their locations.
     
@@ -43,7 +43,7 @@ def classify_fire(fireClassifier):
         frame = cv2.resize(frame, (254, 254), interpolation=cv2.INTER_AREA)
         predict_value = fireClassifier.predict_image(frame)
 
-        if threshold > predict_value:
+        if threshold >= predict_value:
             now = datetime.now()
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
@@ -51,12 +51,12 @@ def classify_fire(fireClassifier):
             print(f'[FIRE DETECTED] The fire were found at: lat = {wp.lat}, lon = {wp.lon}, alt = {wp.alt}')
             print(f'[FIRE DETECTED] The date and time of the fire found are: {dt_string}')
 
-            filename = "fire_piture" + str(i) + ".png"
+            filename = "fire_picture" + str(i) + ".png"
 
             if not cv2.imwrite(filename,frame):
                 print(f"could not save {filename}")
             i = i + 1
-            fire_location.write(filename +" was found: "+ dt_string + " at the cordinates: lat = " + str(wp.lat) + 
+            fire_location.write(filename +" was found: "+ dt_string + " at the coordinates: lat = " + str(wp.lat) +
                 ", lon = " + str(wp.lon) + " alt = " + str(wp.alt) + "\n")
 
         else:
@@ -75,9 +75,6 @@ def classify_fire(fireClassifier):
 
 
 if __name__ == '__main__':
-
-
-    
     abs_path = str(pathlib.Path(__file__).parent.resolve())
     # These generic paths requires the model, training and test folder to be placed in
     # the absolute path of the project(outside of src) and in the folder /Training, /Test/ and

@@ -1,11 +1,8 @@
-from imp import new_module
 import numpy as np
 import pathlib
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
-import os
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -16,21 +13,19 @@ tf.get_logger().setLevel('ERROR')
 
 class FireClassification:
     """
-  [summary]
-
   Attributes
   ----------
-  modelLocation : (str, optional 
+  modelLocation : str, optional
       The location where the model is saved as an absolute path. If it is 
-      unset, it will be saved in the current folder as saved_model/mymodel.
+      unset, it will be saved in the current folder as saved_model/new_model.
           
   testSetLocation : str, optional 
-      The absolute path to the folder, that holds the testset data. If it is 
+      The absolute path to the folder, that holds the test set data. If it is
       not set, the location is in the current folder, in a folder called 
       test_data.
       
   trainingSetLocation : str, optional 
-      [description]. The location of the training data set. If it is not set, 
+      The location of the training data set. If it is not set,
       the default location is in the current folder in a folder called 
       training_data.
       
@@ -44,7 +39,7 @@ class FireClassification:
       Number of vertical pixel. Defaults to 254.
       
   num_classes : int, optional 
-      The number of classes the nerual network should recognize. Defaults to 2 
+      The number of classes the neural network should recognize. Defaults to 2
       for fire and no fire.
   
   seed : int, optional 
@@ -58,12 +53,12 @@ class FireClassification:
   Methods
   -------
   createDataset
-  
-  create_and_train_model
 
   predict_image
-  
+
   test_model
+  
+  create_and_train_model
     """
 
     trainingSetLocation = None
@@ -92,10 +87,10 @@ class FireClassification:
         self.threshold = threshold
 
     def createDataset(self):
-        """Creates the data from the given trainingset location, creates a valida-
+        """Creates the data from the given training set location, creates a valida-
     tion split at 0.2. The seed given to the FireClassification object is used
-    here for shuffeling and transformations. Sets the attributes val_ds and 
-    train_ds to the correct vaules. 
+    here for shuffling and transformations. Sets the attributes val_ds and
+    train_ds to the correct values.
     """
         self.train_ds = tf.keras.utils.image_dataset_from_directory(
             self.trainingSetLocation,
@@ -147,7 +142,7 @@ class FireClassification:
         Absolute path to the model location.
      
     testSetLocation : str, optional
-        Absolute path to the test datas location. It has to be set when the 
+        Absolute path to the test data's location. It has to be set when the
         FireClassification object is created, or when the function is called for
         the function to operate.
          
@@ -239,7 +234,7 @@ class FireClassification:
 
         abs_path = str(pathlib.Path(__file__).parent.resolve())
 
-        model_location = abs_path.replace("/src", "/saved_model/mymodelny")
+        model_location = abs_path.replace("/src", "/saved_model/new_model")
 
         model.save(model_location)
 

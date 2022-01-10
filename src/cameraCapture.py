@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-import cv2
 import gi
 import numpy as np
 
