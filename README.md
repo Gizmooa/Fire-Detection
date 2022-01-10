@@ -4,7 +4,7 @@ This project is a project submission for the subject DM884: Unmanned Aerial Vehi
 
 There are two parts of this project, a drone part, and a classification part. The drone part is inside /src/droneMission.py and the classification part is inside /src/fireClassifier.py. The whole project is run by running /src/main.py
 ## How to run the project
-Running this project requires the user to have [PX4 Sitl](https://github.com/mavlink/qgroundcontrol/releases/download/v4.0.11/QGroundControl.AppImage), [Gazebo](http://gazebosim.org/) and [Dronekit](https://dronekit-python.readthedocs.io/en/latest/guide/quick_start.html) downloaded. The user is also required to have Python version 3.7 or newer. Inside PX4 we are using a modified version of the drone typhoon h480, to angle a camera downwards. 
+Running this project requires the user to have [PX4 Sitl](https://github.com/mavlink/qgroundcontrol/releases/download/v4.0.11/QGroundControl.AppImage), [Gazebo](http://gazebosim.org/) and the dependencies listed in the dependency section. The user is also required to have Python version 3.7 or newer. Inside PX4 we are using a modified version of the drone typhoon h480, to angle a camera downwards. 
 This sdf file is located in /typhoonH480/typhoon\_h480, and should replace the sdf file /path/to/px4/models/typhoon\_h480/typhoon\_h480.sdf. 
 
 After having met the requirements, start by having Gazebo running. The Gazebo should be started with the typhoon H480 drone, it can be started like this when inside the PX4-Autopilot folder:
@@ -24,5 +24,18 @@ Optionally, the project can be started with the optional parameter "-he" to chan
 python3 main.py -he 30
 ```
 The drone will fly in a grid while having an open port on the camera. The script will connect to the camera stream and perform classification on the images. If the classifier detects any fires, a warning is printed on the terminal. Furthermore, the program saves the image of the fire with the GPS location of the drone and a timestamp. This can then be sent manually to the local fire department. 
+## Dependencies
+- tensorflow
+- droneKit
+- opencv
+- numpy
+- gi
+- pymavlink
+- matplotlib
+- sktlearn
+- seaborn
+- argparse
+- pathlib
+
 ## Known issues regarding QGroundControl
 Initially, the project was built using QGroundControl as the ground controller for the project. However, QGroundControl accesses the camera which results in the port of the camera being occupied. This implies that the video capture class for this project cannot connect to the drone. Therefore, if the user wants to run the project with classification, QGroundControl either needs to be shut down or find a way to disable QGroundControl's access to the drone's camera. We tried multiple methods to disable QGroundControl's access to the camera, but without success. 
