@@ -184,7 +184,7 @@ class FireClassification:
             model.summary()
 
 
-        predictions = model.evaluate(testing_data)
+        evaluations = model.evaluate(testing_data)
 
         if (get_confusion_matrix == True):
             abs_path = str(pathlib.Path(__file__).parent.resolve())
@@ -204,7 +204,7 @@ class FireClassification:
             plt.xlabel('Predicted label')
             plt.savefig(cm_path + 'cm')
 
-        return predictions
+        return evaluations
 
 
 
