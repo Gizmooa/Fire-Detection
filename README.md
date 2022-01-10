@@ -24,5 +24,5 @@ Optionally, the project can be started with the optional parameter "-he" to chan
 python3 main.py -he 30
 ```
 The drone will fly in a grid while having an open port on the camera. The script will connect to the camera stream and perform classification on the images. If the classifier detects any fires, a warning is printed on the terminal. Furthermore, the program saves the image of the fire with the GPS location of the drone and a timestamp. This can then be sent manually to the local fire department. 
-# Known issues regarding QGroundControl
+## Known issues regarding QGroundControl
 Initially, the project was built using QGroundControl as the ground controller for the project. However, QGroundControl accesses the camera which results in the port of the camera being occupied. This implies that the video capture class for this project cannot connect to the drone. Therefore, if the user wants to run the project with classification, QGroundControl either needs to be shut down or find a way to disable QGroundControl's access to the drone's camera. We tried multiple methods to disable QGroundControl's access to the camera, but without success. 
