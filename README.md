@@ -10,7 +10,7 @@ For the current state of the program, we are using generic paths. If the user wa
 Running this project requires the user to have [PX4 Sitl](https://github.com/mavlink/qgroundcontrol/releases/download/v4.0.11/QGroundControl.AppImage), [Gazebo](http://gazebosim.org/) and the dependencies listed in the dependency section. The user is also required to have Python version 3.7 or newer. Inside PX4 we are using a modified version of the drone typhoon h480, to angle a camera downwards. 
 This sdf file is located in /typhoonH480/typhoon\_h480, and should replace the sdf file /path/to/px4/models/typhoon\_h480/typhoon\_h480.sdf. 
 
-After having met the requirements, start by having Gazebo running. The Gazebo should be started with the typhoon H480 drone, it can be started like this when inside the PX4-Autopilot folder:
+After having met the requirements, start by having Gazebo running. Gazebo should be started with the typhoon H480 drone, it can be started like this when inside the PX4-Autopilot folder:
 ```
 make px4_sitl gazebo_typhoon_h480
 ``` 
