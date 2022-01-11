@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 ################################################################################################
 # @File DroneKitPX4.py
-# Example usage of DroneKit with PX4
+# Example usage of DroneKit with PX4, modified further by owner and collaborators of this repository.
 #
 # @author Sander Smeets <sander@droneslab.com>
 #
