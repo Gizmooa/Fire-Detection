@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+"""
+All right reserved to owner of the following repository:
+https://github.com/patrickelectric/bluerov_ros_playground/blob/master/src/bluerov/video.py
+"""
+
 import gi
 import numpy as np
 
